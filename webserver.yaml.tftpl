@@ -1,0 +1,78 @@
+#cloud-config
+# ============================================================================
+# DMZ webserver: nginx serving 443 with self-signed cert + /healthz endpoint.
+# Matches the App Gateway probe config from the prod JSON:
+#   host: connect.clientmworkspace.com
+#   path: /healthz
+#   protocol: Https
+#   match: 200-299
+# ============================================================================
+package_update: true
+package_upgrade: false
+packages:
+  - nginx
+  - openssl
+  - tcpdump
+  - net-tools
+
+write_files:
+  - path: /etc/nginx/sites-available/default
+    permissions: '0644'
+    content: |
+      server {
+        listen 80 default_server;
+        listen 443 ssl default_server;
+
+        server_name connect.clientmworkspace.com _;
+
+        ssl_certificate     /etc/ssl/certs/webserver-selfsigned.crt;
+        ssl_certificate_key /etc/ssl/private/webserver-selfsigned.key;
+
+        root /var/www/html;
+        index index.html;
+
+        location /healthz {
+          access_log off;
+          return 200 'OK\n';
+          add_header Content-Type text/plain;
+        }
+
+        location / {
+          try_files $uri $uri/ =404;
+        }
+
+        # Show which NVA the request came through (X-Forwarded-For from AppGW)
+        location /whoami {
+          access_log off;
+          default_type text/plain;
+          return 200 "host: $host\nremote_addr: $remote_addr\nx-forwarded-for: $http_x_forwarded_for\nx-forwarded-proto: $http_x_forwarded_proto\n";
+        }
+      }
+
+  - path: /var/www/html/index.html
+    permissions: '0644'
+    content: |
+      <!DOCTYPE html>
+      <html>
+      <head><title>Clientm Lab Webserver</title></head>
+      <body style="font-family: monospace; padding: 2em;">
+        <h1>Clientm Lab Webserver</h1>
+        <p>If you can see this page over HTTPS via the App Gateway, the full path is working.</p>
+        <p>Try <a href="/whoami">/whoami</a> to see the request headers.</p>
+        <p>Try <a href="/healthz">/healthz</a> for the health endpoint.</p>
+      </body>
+      </html>
+
+runcmd:
+  # Self-signed cert valid for 365 days, matching the prod hostname
+  - |
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+      -keyout /etc/ssl/private/webserver-selfsigned.key \
+      -out /etc/ssl/certs/webserver-selfsigned.crt \
+      -subj "/CN=connect.clientmworkspace.com" \
+      -addext "subjectAltName=DNS:connect.clientmworkspace.com"
+  - chmod 600 /etc/ssl/private/webserver-selfsigned.key
+  - systemctl enable nginx
+  - systemctl restart nginx
+
+final_message: "Webserver bootstrap complete. nginx serving on 80/443 with /healthz."

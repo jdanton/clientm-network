@@ -1,0 +1,165 @@
+#cloud-config
+# ============================================================================
+# NVA cloud-init: turns a plain Ubuntu VM into a stateful router/firewall.
+# Mirrors the Palo Alto behavior that's relevant to the asymmetric routing bug:
+#   - IP forwarding ON
+#   - Stateful FW (conntrack ESTABLISHED,RELATED + NEW)
+#   - DNAT inbound 443 -> webserver:443
+#   - SNAT outbound to internet via eth0
+# ============================================================================
+package_update: true
+package_upgrade: false
+packages:
+  - iptables
+  - iptables-persistent
+  - netfilter-persistent
+  - conntrack
+  - tcpdump
+  - net-tools
+  - traceroute
+  - mtr-tiny
+
+write_files:
+  - path: /etc/sysctl.d/99-nva.conf
+    permissions: '0644'
+    content: |
+      # Required for routing
+      net.ipv4.ip_forward = 1
+
+      # Disable reverse-path filter so we can see asymmetric traffic at the FW
+      # (the issue we want to reproduce is at the *stateful firewall* layer,
+      #  not the kernel's RP filter)
+      net.ipv4.conf.all.rp_filter = 0
+      net.ipv4.conf.default.rp_filter = 0
+      net.ipv4.conf.eth0.rp_filter = 0
+      net.ipv4.conf.eth1.rp_filter = 0
+
+      # ============================================================
+      # CRITICAL FOR REPRODUCING THE BUG:
+      # Disable "loose" conntrack mode. With loose=1 (Linux default),
+      # mid-stream packets like an unsolicited SYN-ACK get tracked as
+      # a new connection. Palo Alto and most enterprise firewalls
+      # are STRICT - they only track flows that started with a SYN
+      # they saw. loose=0 makes our NVAs behave the same way, so
+      # asymmetric returns get tagged INVALID and dropped.
+      # ============================================================
+      net.netfilter.nf_conntrack_tcp_loose = 0
+
+      # Reasonable conntrack table size for a lab
+      net.netfilter.nf_conntrack_max = 65536
+
+  - path: /usr/local/sbin/nva-firewall.sh
+    permissions: '0755'
+    content: |
+      #!/bin/bash
+      set -euo pipefail
+
+      WEBSERVER_IP="${webserver_ip}"
+      INTERNAL_CIDR="${internal_cidr}"
+      DMZ_CIDR="${dmz_cidr}"
+      APPGW_CIDR="${appgw_cidr}"
+
+      # ------------------------------------------------------------------
+      # Routing: by default Azure only sets a default route via the primary
+      # (external) NIC. Forwarding to other VNet subnets needs explicit
+      # routes via the internal NIC's gateway.
+      # ------------------------------------------------------------------
+      INT_GW=$(ip -4 route show dev eth1 | awk '/proto dhcp|kernel/ {print $1; exit}' | awk -F/ '{split($1,a,"."); print a[1]"."a[2]"."a[3]".1"}')
+      if [ -z "$INT_GW" ]; then
+        # Fallback: derive from eth1's subnet
+        INT_GW=$(ip -4 -o addr show eth1 | awk '{print $4}' | awk -F/ '{split($1,a,"."); print a[1]"."a[2]"."a[3]".1"}')
+      fi
+
+      # Add (or replace) the static routes for VNet-internal subnets via eth1
+      ip route replace $DMZ_CIDR via $INT_GW dev eth1
+      ip route replace $APPGW_CIDR via $INT_GW dev eth1
+      logger -t nva-firewall "Added static routes: $DMZ_CIDR and $APPGW_CIDR via $INT_GW (eth1)"
+
+      # Flush any prior firewall state
+      iptables -F
+      iptables -t nat -F
+      iptables -t mangle -F
+      iptables -X
+
+      # Default-deny FORWARD, default-allow INPUT/OUTPUT (lab only)
+      iptables -P INPUT ACCEPT
+      iptables -P OUTPUT ACCEPT
+      iptables -P FORWARD DROP
+
+      # Stateful firewall: established/related always allowed
+      iptables -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+      iptables -A FORWARD -m conntrack --ctstate INVALID -j DROP
+
+      # Allow new flows for HTTPS to webserver (inbound)
+      iptables -A FORWARD -p tcp --dport 443 -d $WEBSERVER_IP -m conntrack --ctstate NEW -j ACCEPT
+
+      # Allow new flows from DMZ outbound (web server reaching internet for updates etc.)
+      iptables -A FORWARD -s $DMZ_CIDR -m conntrack --ctstate NEW -j ACCEPT
+
+      # Allow new flows from internal subnet outbound
+      iptables -A FORWARD -s $INTERNAL_CIDR -m conntrack --ctstate NEW -j ACCEPT
+
+      # ------------------------------------------------------------------
+      # NAT
+      # ------------------------------------------------------------------
+      # DNAT: inbound 443 on this NVA -> webserver:443
+      iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 443 -j DNAT --to-destination $WEBSERVER_IP:443
+
+      # SNAT outbound to internet (masquerade on external NIC)
+      iptables -t nat -A POSTROUTING -o eth0 ! -d 10.0.0.0/8 -j MASQUERADE
+
+      # ------------------------------------------------------------------
+      # >>> Toggle for the FIX <<<
+      # Uncomment to SNAT *inbound* traffic to the webserver to this NVA's
+      # internal IP. Webserver then replies to *this NVA*, not the LB,
+      # which forces symmetric return through the same firewall.
+      # ------------------------------------------------------------------
+      # iptables -t nat -A POSTROUTING -o eth1 -p tcp --dport 443 -d $WEBSERVER_IP -j MASQUERADE
+
+      # Persist
+      netfilter-persistent save
+
+      logger -t nva-firewall "NVA firewall rules applied. Webserver=$WEBSERVER_IP"
+
+  - path: /etc/systemd/system/nva-firewall.service
+    permissions: '0644'
+    content: |
+      [Unit]
+      Description=NVA firewall rules
+      After=network-online.target
+      Wants=network-online.target
+
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/local/sbin/nva-firewall.sh
+      RemainAfterExit=yes
+
+      [Install]
+      WantedBy=multi-user.target
+
+runcmd:
+  # nf_conntrack module must be loaded for the tcp_loose sysctl to exist
+  - modprobe nf_conntrack
+  - echo nf_conntrack > /etc/modules-load.d/nf_conntrack.conf
+  - sysctl --system
+  - systemctl daemon-reload
+  - systemctl enable --now nva-firewall.service
+  # Useful debug shortcut: 'sudo nva-trace' shows live packet counts on the FW
+  - |
+    cat > /usr/local/bin/nva-trace <<'EOF'
+    #!/bin/bash
+    echo "=== iptables FORWARD chain ==="
+    iptables -L FORWARD -v -n --line-numbers
+    echo ""
+    echo "=== iptables NAT PREROUTING ==="
+    iptables -t nat -L PREROUTING -v -n --line-numbers
+    echo ""
+    echo "=== iptables NAT POSTROUTING ==="
+    iptables -t nat -L POSTROUTING -v -n --line-numbers
+    echo ""
+    echo "=== conntrack entries (last 20) ==="
+    conntrack -L 2>/dev/null | tail -20
+    EOF
+  - chmod +x /usr/local/bin/nva-trace
+
+final_message: "NVA bootstrap complete. Run 'sudo nva-trace' to inspect firewall state."

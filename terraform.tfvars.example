@@ -1,0 +1,12 @@
+# Copy to terraform.tfvars and fill in.
+
+# Your SSH public key (paste contents of ~/.ssh/id_rsa.pub or equivalent)
+ssh_public_key = "ssh-rsa AAAA... your-key-here"
+
+# Your public IP /32 (https://ifconfig.me) - locks down SSH and external LB hits
+allowed_ssh_cidr = "1.2.3.4/32"
+
+# Optional overrides
+# location            = "eastus"
+# resource_group_name = "rg-clientm-lab"
+# vm_size             = "Standard_B1s"
