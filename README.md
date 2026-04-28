@@ -1,64 +1,98 @@
 # Clientm Asymmetric Routing Lab
 
-A Terraform reproduction of the Clientm Azure topology so you can poke at the asymmetric routing bug in isolation. Mirrors the prod design from the meeting notes and the App Gateway JSON: external LB → 2x active/active firewall NVAs → internal LB → App Gateway WAF_v2 → webserver.
+A Terraform reproduction of the Clientm Azure network topology for isolating and proving the asymmetric routing bug. Mirrors the production design from the App Gateway and load balancer configs: external LB → active/active NVA pair → App Gateway WAF_v2 → webserver, with the NVAs' return path going through a separate DMZ LB frontend.
 
 ## What this is (and isn't)
 
-**Is:** a cheap, broken-by-default reproduction of the routing problem so you can prove the failure mode and validate fixes without touching the customer's environment.
+**Is:** a cheap, broken-by-default reproduction of the routing problem so you can prove the failure mode and validate fixes without touching the production environment.
 
-**Isn't:** a Palo Alto deployment. Palo Alto VMs in Azure are ~$1.50/hr just for licensing. This uses **Linux + iptables** to provide the same stateful-firewall + NAT semantics that drive the asymmetric routing bug. The bug is a property of stateful firewalls + load balancer hashing, not of Palo Alto specifically — so iptables reproduces it faithfully.
+**Isn't:** a Palo Alto deployment. Palo Alto VMs in Azure are ~$1.50/hr just for licensing. This uses **Linux + iptables** to provide the same stateful-firewall semantics that drive the asymmetric routing bug. The bug is a property of stateful firewalls + load balancer hashing, not of Palo Alto specifically — iptables reproduces it faithfully.
 
 ## Cost estimate (running 24/7, US East)
 
 | Resource | Approx. monthly |
 |---|---|
-| 2x NVA VMs (B1s) | $15 |
-| 1x Webserver VM (B1s) | $7.50 |
-| 3x OS disks (Standard HDD 30GB) | ~$5 |
+| 2x NVA VMs (B2s) | ~$60 |
+| 1x Webserver VM (B2s) | ~$30 |
+| 3x OS disks (Standard HDD 30 GB) | ~$5 |
 | 3x Public IPs (Standard) | ~$11 |
 | External Standard LB | ~$18 |
 | Internal Standard LB | ~$18 |
-| **App Gateway WAF_v2** (idle) | **~$320** |
-| **Total** | **~$395/mo** |
+| **App Gateway WAF_v2** (idle, min=0) | **~$320** |
+| **Total** | **~$462/mo** |
 
-The App Gateway is the cost dominator. **Run `terraform destroy` between test sessions** — bringing the lab back up takes about 8 minutes and saves ~$10/day.
+The App Gateway is the cost dominator. **Run `terraform destroy` between test sessions** — bringing the lab back up takes about 8–10 minutes and saves ~$10/day.
 
-If you only need to reproduce the asymmetric routing bug (not the full path through AppGW), you can comment out `appgateway.tf` and drop the cost to ~$75/month.
+If you only need to reproduce the asymmetric routing bug (not the full App GW path), you can comment out `appgateway.tf` and drop the cost to ~$142/month.
 
-## Topology (matches the diagram you uploaded)
+## Topology
+
+Two VNets, matching production:
 
 ```
-                   Internet
-                       │
-              ┌────────┴────────┐
-              │ External LB     │  Standard, public IP
-              │ (front)         │  443/tcp
-              └────┬───────┬────┘
-                   │       │
-            ┌──────┘       └──────┐
-            │                     │
-         ┌──┴──┐               ┌──┴──┐
-         │NVA1 │               │NVA2 │  Linux + iptables
-         │     │   active/active│     │  (Palo Alto stand-ins)
-         └──┬──┘               └──┬──┘
-            │                     │
-            └──────────┬──────────┘
-                       │
-              ┌────────┴────────┐
-              │ Internal LB     │  10.29.252.100
-              │ (back)          │  ◀── DMZ default route here
-              └────────┬────────┘
-                       │
-              ┌────────┴────────┐
-              │ App Gateway     │  10.28.255.150 (private listener)
-              │ WAF_v2          │  Probe: /healthz on connect.clientmworkspace.com
-              └────────┬────────┘
-                       │
-              ┌────────┴────────┐
-              │ Webserver       │  10.29.254.250
-              │ nginx + /healthz│  DMZ subnet
-              └─────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│  vnet-fw-*  (10.0.0.0/16)  —  firewall transit                  │
+│                                                                  │
+│              Internet                                            │
+│                  │                                               │
+│         ┌────────┴────────┐                                      │
+│         │  External LB    │  public, floating IP, SourceIP hash  │
+│         └───┬─────────┬───┘                                      │
+│             │         │                                           │
+│          ┌──┴──┐   ┌──┴──┐                                       │
+│          │NVA1 │   │NVA2 │  Linux + iptables                     │
+│          │eth0 │   │eth0 │  snet-external 10.0.2.0/24            │
+│          │eth1 │   │eth1 │  snet-internal 10.0.4.0/24            │
+│          │eth2 │   │eth2 │  snet-dmz      10.0.3.0/24            │
+│          └──┬──┘   └──┬──┘                                       │
+│  eth1 pool  └────┬────┘  eth2 pool                               │
+│                  │                                               │
+│    ┌─────────────┴──────────────┐                                │
+│    │     Back LB (internal)     │                                │
+│    │  vip-internal  10.0.4.4    │ ← App GW → webserver inbound  │
+│    │  vip-dmz       10.0.3.10   │ ← webserver return path       │
+│    └────────────────────────────┘                                │
+│                  │ (back LB vip-dmz → NVA eth2)                  │
+│         ┌────────┴────────┐                                      │
+│         │   Webserver     │  10.0.3.100, snet-dmz                │
+│         │   nginx/healthz │  default route → 10.0.3.10           │
+│         └─────────────────┘                                      │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+                         │ VNet peering
+┌────────────────────────┴────────────────────────────────────────┐
+│  vnet-appgw-*  (10.1.0.0/16)  —  App Gateway                    │
+│                                                                  │
+│         ┌─────────────────┐                                      │
+│         │  App Gateway    │  private listener 10.1.1.10          │
+│         │  WAF_v2         │  backend: 10.0.3.100 (webserver)     │
+│         └─────────────────┘  UDR: 10.0.0.0/16 → back LB 10.0.4.4│
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
 ```
+
+### The bug path
+
+```
+App GW (10.1.1.10) ──UDR──▶ Back LB vip-internal (10.0.4.4)
+                              │ SourceIP hash on 10.1.1.10 → NVA-A eth1
+                              ▼
+                            NVA-A eth1 ──DNAT──▶ Webserver (10.0.3.100)
+                                                        │
+                                   default route (0.0.0.0/0)
+                                                        │
+                                                        ▼
+                              Back LB vip-dmz (10.0.3.10)
+                              │ SourceIP hash on 10.0.3.100 → NVA-B eth2
+                              ▼
+                            NVA-B eth2
+                              │ no conntrack entry (NVA-A owns the flow)
+                              │ nf_conntrack_tcp_loose=0 → INVALID → DROP
+                              ▼
+                           ✗ connection reset / timeout
+```
+
+SourceIP distribution hashes on source IP only. Inbound (src = App GW) and return (src = webserver) hash independently — 50% chance they land on different NVAs with only two in the pool. The NVA that receives return traffic has never seen the SYN, marks the packet INVALID, and drops it.
 
 ## Prerequisites
 
@@ -71,69 +105,58 @@ If you only need to reproduce the asymmetric routing bug (not the full path thro
 
 ```bash
 cp terraform.tfvars.example terraform.tfvars
-# edit terraform.tfvars - paste your SSH public key and your public IP /32
+# edit terraform.tfvars — paste your SSH public key and your public IP /32
 
 terraform init
 terraform plan
 terraform apply
 ```
 
-First apply takes ~8-10 minutes (App Gateway is the slow one).
+First apply takes ~8–10 minutes (App Gateway is the slow one).
 
-## Reproducing the asymmetric routing bug (default state)
+## Reproducing the bug
 
-After `apply` settles, the lab is **broken on purpose**. Here's how to see the bug:
+After `apply` settles, the lab is **broken by default** — no configuration changes needed.
 
 ```bash
-# Grab the front LB IP from outputs
 FRONT_LB=$(terraform output -raw external_lb_public_ip)
 
-# Send a request - it'll either hang or return after retries fail
-curl -kv --max-time 10 \
-  --resolve connect.clientmworkspace.com:443:$FRONT_LB \
-  https://connect.clientmworkspace.com/healthz
+# Send requests through the external LB — you'll see intermittent failures
+for i in $(seq 1 50); do
+  curl -sk --max-time 3 -o /dev/null -w "%{http_code}\n" \
+    --resolve "connect.clientmworkspace.com:443:${FRONT_LB}" \
+    https://connect.clientmworkspace.com/healthz
+done | sort | uniq -c
 ```
 
-To see exactly where it dies, SSH to both NVAs in parallel and run:
+Expected broken output: a mix of `200` and `000` (timeout/reset).
+
+To see exactly where it dies, SSH to both NVAs and run `sudo nva-trace`. The NVA receiving return traffic without a conntrack entry will show incrementing INVALID drops in the FORWARD chain.
+
+## Applying the fix
+
+The easiest fix is SNAT on the NVAs' DMZ NIC (eth2). With SNAT, the webserver sees the NVA's DMZ IP as the source and replies directly to that NVA — bypassing the back LB DMZ frontend entirely and forcing symmetric return.
+
+Open [nva.yaml.tftpl](nva.yaml.tftpl) and uncomment the line in the `# >>> Toggle for the FIX <<<` section:
 
 ```bash
-# On NVA1
-sudo tcpdump -i any -nn 'host 10.29.254.250 and port 443'
-
-# On NVA2 (same command)
-sudo tcpdump -i any -nn 'host 10.29.254.250 and port 443'
-
-# On either
-sudo conntrack -E -p tcp --dport 443    # live conntrack events
+iptables -t nat -A POSTROUTING -o eth2 -p tcp --dport 443 -d $WEBSERVER_IP -j MASQUERADE
 ```
 
-You'll see the SYN arrive on NVA1, get DNAT'd to the webserver, the webserver's SYN-ACK route through the internal LB, and land on NVA2 — which has no conntrack entry and drops it. Classic asymmetric routing.
+Then SSH to both NVAs and re-run the firewall script:
 
-There's a helper installed on each NVA: `sudo nva-trace` shows iptables counters and recent conntrack entries.
+```bash
+ssh azureuser@$(terraform output -raw nva1_public_ip) 'sudo /usr/local/sbin/nva-firewall.sh'
+ssh azureuser@$(terraform output -raw nva2_public_ip) 'sudo /usr/local/sbin/nva-firewall.sh'
+```
 
-## Validating fixes
+No `terraform apply` needed. Re-run the curl loop and all requests should return 200.
 
-Three fixes worth testing, in order of "what the customer should actually do":
+**Trade-off:** SNAT hides the original source IP from the webserver (it sees the NVA's DMZ IP). For production, the correct fix is a **Gateway Load Balancer** — see the [Azure GWLB docs](https://learn.microsoft.com/en-us/azure/load-balancer/gateway-overview) for the bump-in-the-wire pattern.
 
-### Fix 1: HA Ports + Floating IP on the internal LB
+## WAF mode
 
-Open `internal-lb.tf`. Comment out the `azurerm_lb_rule.internal_443` block and uncomment the `azurerm_lb_rule.internal_haports` block. Run `terraform apply`. Re-run the curl test.
-
-This makes the internal LB forward all ports/protocols and preserves the original destination IP, so the NVAs see the flow as a single 5-tuple and the LB can hash consistently.
-
-### Fix 2: SNAT on the NVAs
-
-Open `cloud-init/nva.yaml.tftpl`. Find the "Toggle for the FIX" section near the bottom of `nva-firewall.sh` and uncomment the `iptables -t nat -A POSTROUTING -o eth1 ...` line. Run `terraform apply` (or just SSH and re-run the script).
-
-With SNAT, the webserver replies go back to the NVA's internal IP rather than the original client IP, so Azure routing sends them straight back through the same NVA. Symmetric. The trade-off: the webserver sees the NVA's IP as the source, not the real client IP — fine for most apps, breaks anything that does source-IP based logic.
-
-### Fix 3: Gateway Load Balancer
-
-Not in this repo (would need a separate construct). The "Microsoft-recommended" gateway LB approach the customer mentioned trying. Worth knowing it exists; usually fix 1 or 2 lands first.
-
-## Switching to "Prevention" WAF mode
-
-The lab WAF policy is in **Detection** mode by default so you don't fight false positives while debugging routing. Once routing works, flip `mode` in `appgateway.tf` (`azurerm_web_application_firewall_policy.appgw.policy_settings.mode`) to `"Prevention"` to mirror prod.
+The lab WAF policy is in **Detection** mode so false positives don't obscure the routing debug. Once routing works, flip `mode` in `appgateway.tf` to `"Prevention"` to mirror production.
 
 ## Tearing down
 
@@ -141,22 +164,22 @@ The lab WAF policy is in **Detection** mode by default so you don't fight false 
 terraform destroy
 ```
 
-App Gateway takes 5-7 minutes to delete. Be patient.
+App Gateway takes 5–7 minutes to delete.
 
 ## File map
 
 | File | Purpose |
 |---|---|
-| `versions.tf` | Provider pins |
-| `variables.tf` | All inputs, with defaults matching the prod IP plan |
-| `main.tf` | RG + VNet + subnets |
-| `network-security.tf` | NSGs |
-| `route-tables.tf` | UDRs (the DMZ default route is what triggers the bug) |
-| `nva.tf` | 2x Linux NVAs with stateful iptables |
-| `external-lb.tf` | Front (public) Standard LB |
-| `internal-lb.tf` | Back (private) Standard LB — flip rule here for fix #1 |
-| `appgateway.tf` | App Gateway WAF_v2 mirroring the prod JSON |
+| `versions.tf` | Provider pins (azurerm ~> 4.0) |
+| `variables.tf` | All inputs with defaults matching the prod IP plan |
+| `main.tf` | Resource group, 2x VNets (fw + appgw), bidirectional peering |
+| `network-security.tf` | NSGs (VirtualNetwork tag covers peered VNets) |
+| `route-tables.tf` | UDRs — DMZ default → back LB DMZ frontend; AppGW subnet → back LB internal frontend |
+| `nva.tf` | 2x Linux NVAs, 3 NICs each (external / internal / DMZ) |
+| `nva.yaml.tftpl` | iptables + routing — uncomment SNAT line for the fix |
+| `external-lb.tf` | Front (public) Standard LB, floating IP, SourceIP distribution |
+| `internal-lb.tf` | Back (private) Standard LB — 2 frontends (internal + DMZ), HA Ports |
+| `appgateway.tf` | App Gateway WAF_v2 in the appgw VNet, private listener |
 | `webserver.tf` | DMZ webserver (nginx + /healthz) |
-| `outputs.tf` | Useful IPs and test commands |
-| `cloud-init/nva.yaml.tftpl` | iptables setup — flip SNAT line for fix #2 |
-| `cloud-init/webserver.yaml.tftpl` | nginx + self-signed cert |
+| `webserver.yaml.tftpl` | nginx cloud-init + self-signed cert |
+| `outputs.tf` | Useful IPs and test one-liners |
