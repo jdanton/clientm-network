@@ -2,59 +2,71 @@
 
 ## What this lab proves
 
-The lab reproduces a real production incident: an active/active firewall pair (NVA1 and NVA2) sitting behind an Azure Standard Load Balancer drops return traffic intermittently because the internal LB hashes reply flows to a different NVA than the one that handled the original connection. That NVA has no conntrack entry, marks the packet INVALID, and drops it.
+Active/active NVA pairs behind Azure Standard Load Balancers can silently drop return traffic when the LB hashes the inbound flow and the return flow to **different NVAs**. The NVA that receives return traffic has no conntrack entry for the flow, marks it INVALID, and drops it.
+
+In this lab the trigger is the back LB's **DMZ frontend** (`vip-dmz`, 10.0.3.10). The webserver's default route points here, so return traffic to the App GW re-enters the NVA pool via a separate LB frontend using SourceIP distribution. SourceIP hashes on source IP only — the return source (webserver, 10.0.3.100) hashes independently from the inbound source (App GW, 10.1.1.10), landing on a different NVA ~50% of the time.
 
 ---
 
-## Network topology
+## Network topology (lab IPs)
 
 ```
-Internet
-    │
-    ▼
-Public IP  (pip-clientm-lab-front-lb)
-    │
-    ▼
-External LB  (lb-clientm-lab-front)   ← Standard SKU, TCP 443, 5-tuple hash
-    │ distributes across both NVAs' external NICs
-    ├──────────────────────┐
-    ▼                      ▼
-  NVA1 (eth0)           NVA2 (eth0)       ← snet-external 10.0.2.0/24
-  NVA1 (eth1)           NVA2 (eth1)       ← snet-internal 10.0.4.0/24
-    │                      │
-    └──────────┬───────────┘
-               ▼
-        Internal LB  (lb-clientm-lab-back)   ← BROKEN: per-port TCP, no HA Ports
-               │  or
-               │  FIXED: HA Ports + floating IP (all ports, any proto)
-               ▼
-         Webserver  (snet-dmz 10.0.3.0/24)
-               │
-               │ default route → internal LB frontend (10.0.4.4)
-               │ reply traffic re-enters the internal LB
-               ▼
-        (same LB, re-hashes)  ←── THIS is the bug: return flow may land on the
-                                   *other* NVA, which has no conntrack state
+vnet-appgw-*  10.1.0.0/16
+──────────────────────────────────────────────────────────
+  App Gateway WAF_v2
+    private listener:  10.1.1.10  (snet-appgateway)
+    backend pool:      10.0.3.100 (webserver, via peering)
+    UDR on subnet:     10.0.0.0/16 → back LB internal (10.0.4.4)
+
+vnet-fw-*  10.0.0.0/16
+──────────────────────────────────────────────────────────
+  External LB (public)   pip-clientm-lab-front-lb
+    rule: TCP 443, floating IP, SourceIP distribution
+    backend: NVA eth0 (snet-external 10.0.2.0/24)
+
+  NVA1 / NVA2  —  Linux + iptables (Palo Alto stand-in)
+    eth0  snet-external  10.0.2.10 / .11  ← front LB backend
+    eth1  snet-internal  10.0.4.10 / .11  ← back LB internal pool
+    eth2  snet-dmz       10.0.3.20 / .21  ← back LB DMZ pool  ← BUG LIVES HERE
+
+  Back LB (internal)  lb-clientm-lab-back
+    vip-internal  10.0.4.4  → pool: NVA eth1   (inbound from App GW)
+    vip-dmz       10.0.3.10 → pool: NVA eth2   (return from webserver)
+    both rules: HA Ports, SourceIP distribution, no floating IP
+
+  Webserver  10.0.3.100  snet-dmz
+    default route → back LB vip-dmz (10.0.3.10)
 ```
 
-Additionally, an Application Gateway (WAF_v2) sits in `snet-appgateway 10.0.1.0/24` with:
-- Public frontend for external access
-- Private frontend (10.0.1.10) that the NVAs DNAT inbound HTTPS to
-- Backend pool pointing at the webserver
-- Route table forcing AppGW→webserver traffic through the internal LB (same path, same bug)
+**Bug path:**
+```
+App GW (10.1.1.10)
+  │ UDR: 10.0.0.0/16 → 10.0.4.4
+  ▼
+Back LB vip-internal (10.0.4.4)
+  │ SourceIP on 10.1.1.10 → NVA-A eth1
+  ▼
+NVA-A eth1 ──DNAT──▶ Webserver (10.0.3.100)
+                          │ default route → 10.0.3.10
+                          ▼
+                     Back LB vip-dmz (10.0.3.10)
+                          │ SourceIP on 10.0.3.100 → NVA-B eth2
+                          ▼
+                     NVA-B eth2
+                          │ no conntrack entry → INVALID → DROP ✗
+```
 
 ---
 
 ## Prerequisites
 
-- `terraform apply` has completed successfully (35 resources created)
+- `terraform apply` has completed successfully
 - Your SSH key is available (`ssh-agent` loaded, or at `~/.ssh/id_rsa`)
 - `curl` and `ssh` are in your PATH
-- You are running commands from the `clientm/` directory
+- Run commands from the `clientm/` directory
 
-Verify terraform outputs are populated:
 ```bash
-terraform output
+terraform output   # verify all IPs are populated
 ```
 
 ---
@@ -65,66 +77,52 @@ terraform output
 ./test-lab.sh
 ```
 
-The script runs all five phases automatically and pauses at Phase 4 to let you make the code change before applying the fix.
+The script runs all five phases automatically and pauses at Phase 4 to let you apply the fix.
 
-To jump to a specific phase:
 ```bash
-./test-lab.sh --phase 3   # just run the observation phase
-./test-lab.sh --phase 5   # just verify the fix (after applying)
-```
-
-To poll until VMs are SSH-reachable (useful right after `terraform apply`):
-```bash
-./test-lab.sh --wait
+./test-lab.sh --phase 3   # observation only
+./test-lab.sh --phase 5   # verify fix (after applying)
+./test-lab.sh --wait      # poll until VMs are SSH-reachable
 ```
 
 ---
 
-## Phase-by-phase breakdown
+## Phase 0 — Wait for VMs
 
-### Phase 0 — Wait for VMs
+Cloud-init takes 2–4 minutes after VMs become reachable. Watch it finish:
 
-Cloud-init takes 2–4 minutes after the VMs become reachable. The script polls SSH on both NVA public IPs until they respond, then proceeds.
-
-If cloud-init is still running when you SSH in, watch it finish:
 ```bash
-ssh azureuser@<NVA1_IP> 'sudo tail -f /var/log/cloud-init-output.log'
+ssh azureuser@$(terraform output -raw nva1_public_ip) \
+  'sudo tail -f /var/log/cloud-init-output.log'
 ```
 
 ---
 
-### Phase 1 — Component health checks
-
-The script verifies:
+## Phase 1 — Component health checks
 
 | Check | Expected |
 |---|---|
 | `nva-firewall.service` on both NVAs | `active (exited)` |
 | `net.ipv4.ip_forward` on both NVAs | `1` |
+| `net.ipv4.conf.eth2.rp_filter` | `0` (DMZ NIC, required for asymmetric observation) |
 | `net.netfilter.nf_conntrack_tcp_loose` | `0` (strict — required to reproduce the bug) |
-| Webserver `/healthz` from NVA1 internal NIC | HTTP 200 |
-| External LB `/healthz` from the internet | HTTP 200 or intermittent (bug may already be active) |
+| Webserver `/healthz` from NVA1 | HTTP 200 |
+| External LB `/healthz` from internet | 200 or intermittent (bug may already be active) |
 
-**Key sysctl: `nf_conntrack_tcp_loose=0`**
-
-Linux's default conntrack mode (`loose=1`) accepts mid-stream packets and creates a new conntrack entry for them. Enterprise firewalls like Palo Alto are strict: they only track flows that started with a SYN they processed. Setting `loose=0` on the NVAs makes them behave the same way — an unsolicited return packet gets no conntrack entry, is tagged `INVALID`, and the `FORWARD DROP` rule drops it.
+**Why `nf_conntrack_tcp_loose=0`:** Linux's default (`loose=1`) accepts mid-stream packets and creates a new conntrack entry. Enterprise firewalls like Palo Alto are strict — they only track flows started with a SYN they saw. With `loose=0`, an unsolicited SYN-ACK gets tagged INVALID and the FORWARD DROP rule drops it.
 
 ---
 
-### Phase 2 — Reproduce the bug
+## Phase 2 — Reproduce the bug
 
-The script:
-1. Flushes conntrack on both NVAs (clean slate)
-2. Sends 20 HTTPS requests through the external LB
-3. Reports how many fail
-
-You should see intermittent `X` failures. The failure rate depends on how the LB hashes flows; with only two NVAs it's roughly 50% of sessions that route asymmetrically.
-
-If all 20 succeed, the LB happened to hash everything to one NVA. Run the longer loop printed by the script (100 requests) to catch the asymmetry.
-
-Manual equivalent:
 ```bash
 ELB_IP=$(terraform output -raw external_lb_public_ip)
+
+# Flush conntrack for a clean slate
+ssh azureuser@$(terraform output -raw nva1_public_ip) 'sudo conntrack -F'
+ssh azureuser@$(terraform output -raw nva2_public_ip) 'sudo conntrack -F'
+
+# 50 requests — expect a mix of 200 and 000
 for i in $(seq 1 50); do
   curl -sk --max-time 3 -o /dev/null -w "%{http_code}\n" \
     --resolve "connect.clientmworkspace.com:443:${ELB_IP}" \
@@ -132,121 +130,89 @@ for i in $(seq 1 50); do
 done | sort | uniq -c
 ```
 
-Expected broken output: a mix of `200` and `000` (connection timeout/reset).
+Expected broken output:
+```
+     26 000
+     24 200
+```
+
+If all 50 succeed, the LB happened to hash everything to one NVA. Run 200 requests to catch the asymmetry.
 
 ---
 
-### Phase 3 — Observe the bug on the NVAs
-
-SSH to both NVAs and run `sudo nva-trace` to see the iptables counters:
+## Phase 3 — Observe the bug on the NVAs
 
 ```bash
 NVA1_IP=$(terraform output -raw nva1_public_ip)
 NVA2_IP=$(terraform output -raw nva2_public_ip)
+WEBSERVER=$(terraform output -raw webserver_ip)
 
 ssh azureuser@${NVA1_IP} 'sudo nva-trace'
 ssh azureuser@${NVA2_IP} 'sudo nva-trace'
 ```
 
-What to look for in the `FORWARD` chain output:
+Look at the FORWARD chain. The NVA receiving return traffic it never saw the SYN for will show INVALID drops:
 
 ```
 Chain FORWARD (policy DROP)
-num   pkts bytes target  prot  ...  match
-1      421  ...  ACCEPT  all   ...  ctstate ESTABLISHED,RELATED
-2       37  ...  DROP    all   ...  ctstate INVALID          ← THIS is the bug
-3      180  ...  ACCEPT  tcp   ...  ctstate NEW, dport 443
+num   pkts bytes target  prot  match
+1      421  ...  ACCEPT  all   ctstate ESTABLISHED,RELATED
+2       37  ...  DROP    all   ctstate INVALID          ← THIS is the bug
+3      180  ...  ACCEPT  tcp   ctstate NEW dport 443
 ```
 
-The NVA with INVALID drops is the one receiving return traffic it never saw the SYN for. The other NVA will have conntrack entries for the same flows:
+Confirm which NVA owns the conntrack entries vs. which is dropping:
 
 ```bash
-# On NVA1 — look for the webserver's IP in conntrack
-WEBSERVER_IP=$(terraform output -raw webserver_ip)
-ssh azureuser@${NVA1_IP} "sudo conntrack -L | grep ${WEBSERVER_IP}"
+# NVA with entries = handled inbound (NVA-A)
+ssh azureuser@${NVA1_IP} "sudo conntrack -L | grep ${WEBSERVER}"
 
-# On NVA2 — same
-ssh azureuser@${NVA2_IP} "sudo conntrack -L | grep ${WEBSERVER_IP}"
+# NVA without entries but with INVALID drops = receiving return traffic (NVA-B)
+ssh azureuser@${NVA2_IP} "sudo conntrack -L | grep ${WEBSERVER}"
 ```
 
-The NVA without conntrack entries for `${WEBSERVER_IP}` is the one being bypassed by the inbound flow but hit by the return flow.
+Live packet capture on NVA-B's DMZ NIC (eth2) — this is where return traffic arrives:
 
-Live packet capture on the "wrong" NVA:
 ```bash
-ssh azureuser@${NVA2_IP} "sudo tcpdump -i any -nn 'host ${WEBSERVER_IP} and port 443' -c 50"
+ssh azureuser@${NVA2_IP} \
+  "sudo tcpdump -i eth2 -nn 'host ${WEBSERVER} and port 443' -c 30"
 ```
 
-You will see TCP packets arriving on `eth1` with no corresponding conntrack entry.
+You'll see TCP packets arriving on eth2 that trigger INVALID → DROP because NVA-B never saw the corresponding SYN on its eth1.
 
 ---
 
-### Phase 4 — Apply the fix
+## Phase 4 — Apply the fix
 
-Two fixes exist. Pick one.
+### Fix A — NVA SNAT on eth2 (simplest to demonstrate)
 
-#### Fix A — Internal LB HA Ports (recommended)
-
-This mirrors the Azure Gateway Load Balancer (GWLB) pattern. HA Ports means the LB forwards **all ports and protocols** based on 5-tuple, with `floating_ip_enabled = true` so the destination IP is preserved as the NVA internal IP rather than the LB frontend. The result: inbound and return flows hash identically.
-
-**Steps:**
-
-1. Open [internal-lb.tf](internal-lb.tf)
-2. Comment out the broken rule (lines 55–66):
-   ```hcl
-   # resource "azurerm_lb_rule" "internal_443" { ... }
-   ```
-3. Uncomment the fixed rule (lines 73–84):
-   ```hcl
-   resource "azurerm_lb_rule" "internal_haports" {
-     ...
-     protocol           = "All"
-     frontend_port      = 0
-     backend_port       = 0
-     floating_ip_enabled = true
-     ...
-   }
-   ```
-4. Apply:
-   ```bash
-   terraform apply -auto-approve
-   ```
-
-No VM restart required — the LB rule change takes effect immediately.
-
-#### Fix B — NVA-side SNAT
-
-Instead of fixing the LB, you can make the NVA SNAT the webserver-bound traffic to its own internal NIC IP. The webserver then replies directly to that NVA (not through the LB), forcing symmetric return.
+With SNAT, the webserver sees the NVA's DMZ IP (10.0.3.20 or .21) as the source instead of the App GW IP. The webserver replies directly to that NVA rather than back through the DMZ LB frontend — symmetric return path, no INVALID drops.
 
 **Steps:**
 
 1. Open [nva.yaml.tftpl](nva.yaml.tftpl)
-2. Uncomment line 117:
+2. Uncomment the SNAT line in the `# >>> Toggle for the FIX <<<` section:
    ```bash
-   iptables -t nat -A POSTROUTING -o eth1 -p tcp --dport 443 -d $WEBSERVER_IP -j MASQUERADE
+   iptables -t nat -A POSTROUTING -o eth2 -p tcp --dport 443 -d $WEBSERVER_IP -j MASQUERADE
    ```
-3. SSH to both NVAs and re-run the firewall script:
+3. SSH to both NVAs and re-run the firewall script (no `terraform apply` needed):
    ```bash
    ssh azureuser@${NVA1_IP} 'sudo /usr/local/sbin/nva-firewall.sh'
    ssh azureuser@${NVA2_IP} 'sudo /usr/local/sbin/nva-firewall.sh'
    ```
 
-No terraform apply needed — you're changing the iptables rules directly.
+**Trade-off:** The webserver logs show the NVA's DMZ IP as the client, not the real client IP. Acceptable in many environments, breaks source-IP-based logic.
 
-**Trade-off**: Fix B hides the client's original IP from the webserver (it sees the NVA internal IP). Fix A preserves the original client IP, which is why it's preferred in production.
+### Fix B — Gateway Load Balancer (production recommendation)
+
+Not implemented in this repo. Azure's GWLB uses "bump-in-the-wire" semantics — it attaches to the front of another LB's backend and guarantees symmetric flow through the same NVA by using a flow-sticky encapsulation (VXLAN with the same outer header for both directions). See [Azure GWLB docs](https://learn.microsoft.com/en-us/azure/load-balancer/gateway-overview).
 
 ---
 
-### Phase 5 — Verify the fix
+## Phase 5 — Verify the fix
 
 ```bash
-./test-lab.sh --phase 5
-```
-
-Or manually:
-```bash
-ELB_IP=$(terraform output -raw external_lb_public_ip)
-
-# Flush conntrack so we start clean
+# Flush conntrack
 ssh azureuser@${NVA1_IP} 'sudo conntrack -F'
 ssh azureuser@${NVA2_IP} 'sudo conntrack -F'
 
@@ -263,7 +229,8 @@ Expected fixed output:
      50 200
 ```
 
-Check that INVALID drop counters are now zero (or not incrementing):
+Confirm INVALID drops are no longer incrementing:
+
 ```bash
 ssh azureuser@${NVA1_IP} 'sudo iptables -L FORWARD -v -n'
 ssh azureuser@${NVA2_IP} 'sudo iptables -L FORWARD -v -n'
@@ -274,30 +241,29 @@ ssh azureuser@${NVA2_IP} 'sudo iptables -L FORWARD -v -n'
 ## Useful one-liners
 
 ```bash
-# Get all IPs at once
+# All IPs at once
 terraform output
 
-# SSH to NVA1
+# SSH to NVA1 / NVA2
 ssh azureuser@$(terraform output -raw nva1_public_ip)
-
-# SSH to NVA2
 ssh azureuser@$(terraform output -raw nva2_public_ip)
 
-# Live conntrack watch on NVA1 (updates every 2s)
-ssh azureuser@$(terraform output -raw nva1_public_ip) \
-  'watch -n2 "sudo conntrack -L 2>/dev/null | grep $(terraform output -raw webserver_ip || echo 10.0.3.10)"'
-
-# Test AppGW public frontend (goes through AppGW → NVA path)
-curl -kv --resolve "connect.clientmworkspace.com:443:$(terraform output -raw appgw_public_ip)" \
-  https://connect.clientmworkspace.com/healthz
-
-# Test /whoami to see which NVA handled the request
-curl -sk --resolve "connect.clientmworkspace.com:443:$(terraform output -raw external_lb_public_ip)" \
-  https://connect.clientmworkspace.com/whoami
-
-# Watch iptables INVALID drops in real time on NVA2
+# Watch INVALID drops in real time on NVA2's DMZ NIC
 ssh azureuser@$(terraform output -raw nva2_public_ip) \
   'watch -n1 "sudo iptables -L FORWARD -v -n | grep -E \"DROP|INVALID\""'
+
+# Live conntrack events on NVA1
+ssh azureuser@$(terraform output -raw nva1_public_ip) \
+  'sudo conntrack -E -p tcp --dport 443'
+
+# Test via external LB
+ELB_IP=$(terraform output -raw external_lb_public_ip)
+curl -kv --resolve "connect.clientmworkspace.com:443:${ELB_IP}" \
+  https://connect.clientmworkspace.com/healthz
+
+# Packet capture on NVA2 eth2 (DMZ NIC — return traffic lands here)
+ssh azureuser@$(terraform output -raw nva2_public_ip) \
+  "sudo tcpdump -i eth2 -nn 'port 443' -c 50"
 ```
 
 ---
@@ -308,4 +274,4 @@ ssh azureuser@$(terraform output -raw nva2_public_ip) \
 terraform destroy
 ```
 
-The App Gateway (WAF_v2) accounts for most of the cost (~$0.44/hr). Destroy between test sessions if you are not actively using the lab.
+The App Gateway (WAF_v2) accounts for most of the cost (~$0.44/hr). Destroy between sessions.
