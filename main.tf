@@ -1,6 +1,13 @@
 # ---------------------------------------------------------------------------
-# Resource group + VNet + subnets
-# Mirrors the prod layout: separate subnets for external/internal/DMZ/AppGW.
+# Resource group + VNets + subnets
+#
+# Two VNets mirroring production:
+#   vnet-fw  (firewall transit): external, internal, DMZ subnets + NVAs + webserver
+#   vnet-appgw (server/app):     App Gateway subnet
+#
+# VNet peering (bidirectional, allow_forwarded_traffic) provides full routing
+# between both VNets. UDRs on the AppGW subnet force App GW → webserver traffic
+# through the back LB → NVAs, reproducing the asymmetric routing condition.
 # ---------------------------------------------------------------------------
 
 resource "azurerm_resource_group" "lab" {
@@ -9,8 +16,10 @@ resource "azurerm_resource_group" "lab" {
   tags     = var.tags
 }
 
+# --- Firewall transit VNet (NVAs + webserver) ---
+
 resource "azurerm_virtual_network" "lab" {
-  name                = "vnet-${var.name_prefix}"
+  name                = "vnet-fw-${var.name_prefix}"
   location            = azurerm_resource_group.lab.location
   resource_group_name = azurerm_resource_group.lab.name
   address_space       = var.vnet_address_space
@@ -38,11 +47,40 @@ resource "azurerm_subnet" "dmz" {
   address_prefixes     = [var.subnet_dmz_cidr]
 }
 
-# App Gateway requires a dedicated subnet (per the meeting notes:
-# "AppGW is not on same subnet as host, because app gateway requires dedicated subnet").
+# --- App Gateway VNet (separate, mirrors prod vnet-srvfw) ---
+
+resource "azurerm_virtual_network" "appgw" {
+  name                = "vnet-appgw-${var.name_prefix}"
+  location            = azurerm_resource_group.lab.location
+  resource_group_name = azurerm_resource_group.lab.name
+  address_space       = var.vnet_appgw_address_space
+  tags                = var.tags
+}
+
+# App Gateway requires a dedicated subnet
 resource "azurerm_subnet" "appgw" {
   name                 = "snet-appgateway"
   resource_group_name  = azurerm_resource_group.lab.name
-  virtual_network_name = azurerm_virtual_network.lab.name
+  virtual_network_name = azurerm_virtual_network.appgw.name
   address_prefixes     = [var.subnet_appgw_cidr]
+}
+
+# --- VNet peering (bidirectional) ---
+
+resource "azurerm_virtual_network_peering" "fw_to_appgw" {
+  name                      = "peer-fw-to-appgw"
+  resource_group_name       = azurerm_resource_group.lab.name
+  virtual_network_name      = azurerm_virtual_network.lab.name
+  remote_virtual_network_id = azurerm_virtual_network.appgw.id
+  allow_forwarded_traffic   = true
+  allow_virtual_network_access = true
+}
+
+resource "azurerm_virtual_network_peering" "appgw_to_fw" {
+  name                      = "peer-appgw-to-fw"
+  resource_group_name       = azurerm_resource_group.lab.name
+  virtual_network_name      = azurerm_virtual_network.appgw.name
+  remote_virtual_network_id = azurerm_virtual_network.lab.id
+  allow_forwarded_traffic   = true
+  allow_virtual_network_access = true
 }

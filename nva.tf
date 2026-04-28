@@ -1,12 +1,14 @@
 # ---------------------------------------------------------------------------
 # Network Virtual Appliances (Linux + iptables, simulating the Palo Altos)
 #
-# 2 NICs each:
-#   - eth0 (external, in snet-external) - faces the front LB
-#   - eth1 (internal, in snet-internal) - faces the internal LB / DMZ
+# 3 NICs each (matching production):
+#   - eth0 (external, snet-external)  — faces the front LB
+#   - eth1 (internal, snet-internal)  — faces the back LB internal frontend
+#   - eth2 (DMZ, snet-dmz)            — faces the back LB DMZ frontend
 #
-# Each NVA gets its own public IP so you can SSH directly for debugging.
-# (NSG locks SSH to var.allowed_ssh_cidr.)
+# eth2 is the key addition: webserver return traffic arrives here via the
+# back LB DMZ frontend (10.0.3.10), reproducing the asymmetric routing
+# condition when the returning NVA has no conntrack entry for the flow.
 # ---------------------------------------------------------------------------
 
 locals {
@@ -14,11 +16,11 @@ locals {
     webserver_ip  = var.webserver_ip
     internal_cidr = var.subnet_internal_cidr
     dmz_cidr      = var.subnet_dmz_cidr
-    appgw_cidr    = var.subnet_appgw_cidr
+    appgw_cidr    = var.vnet_appgw_address_space[0]
   })
 }
 
-# Public IPs for management (and source of egress SNAT in lab)
+# Public IPs for management SSH
 resource "azurerm_public_ip" "nva" {
   for_each            = toset(["nva1", "nva2"])
   name                = "pip-${each.key}"
@@ -30,7 +32,7 @@ resource "azurerm_public_ip" "nva" {
   tags                = var.tags
 }
 
-# External NICs (eth0)
+# External NICs (eth0) — face the front LB
 resource "azurerm_network_interface" "nva_external" {
   for_each = {
     nva1 = var.nva1_external_ip
@@ -39,7 +41,7 @@ resource "azurerm_network_interface" "nva_external" {
   name                  = "nic-${each.key}-ext"
   location              = azurerm_resource_group.lab.location
   resource_group_name   = azurerm_resource_group.lab.name
-  ip_forwarding_enabled = true # Required for the VM to forward IP packets
+  ip_forwarding_enabled = true
   tags                  = var.tags
 
   ip_configuration {
@@ -52,7 +54,7 @@ resource "azurerm_network_interface" "nva_external" {
   }
 }
 
-# Internal NICs (eth1)
+# Internal NICs (eth1) — face the back LB internal frontend (10.0.4.4)
 resource "azurerm_network_interface" "nva_internal" {
   for_each = {
     nva1 = var.nva1_internal_ip
@@ -72,6 +74,28 @@ resource "azurerm_network_interface" "nva_internal" {
   }
 }
 
+# DMZ NICs (eth2) — face the back LB DMZ frontend (10.0.3.10)
+# Return traffic from the webserver arrives here. The asymmetric routing bug
+# manifests when this NVA has no conntrack entry for the inbound flow.
+resource "azurerm_network_interface" "nva_dmz" {
+  for_each = {
+    nva1 = var.nva1_dmz_ip
+    nva2 = var.nva2_dmz_ip
+  }
+  name                  = "nic-${each.key}-dmz"
+  location              = azurerm_resource_group.lab.location
+  resource_group_name   = azurerm_resource_group.lab.name
+  ip_forwarding_enabled = true
+  tags                  = var.tags
+
+  ip_configuration {
+    name                          = "ipconfig-dmz"
+    subnet_id                     = azurerm_subnet.dmz.id
+    private_ip_address_allocation = "Static"
+    private_ip_address            = each.value
+  }
+}
+
 # NVA VMs
 resource "azurerm_linux_virtual_machine" "nva" {
   for_each              = toset(["nva1", "nva2"])
@@ -84,6 +108,7 @@ resource "azurerm_linux_virtual_machine" "nva" {
   network_interface_ids = [
     azurerm_network_interface.nva_external[each.key].id,
     azurerm_network_interface.nva_internal[each.key].id,
+    azurerm_network_interface.nva_dmz[each.key].id,
   ]
   tags = var.tags
 
@@ -106,7 +131,4 @@ resource "azurerm_linux_virtual_machine" "nva" {
     sku       = "server"
     version   = "latest"
   }
-
-  # Optional cost saver: B-series shutdown when idle is fine, just stop/dealloc
-  # via Azure Portal or `az vm deallocate` between test sessions.
 }

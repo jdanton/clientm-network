@@ -17,9 +17,15 @@ variable "name_prefix" {
 }
 
 variable "vnet_address_space" {
-  description = "Address space for the virtual network"
+  description = "Address space for the firewall transit VNet (NVAs + webserver)"
   type        = list(string)
   default     = ["10.0.0.0/16"]
+}
+
+variable "vnet_appgw_address_space" {
+  description = "Address space for the App Gateway VNet (separate from firewall transit VNet)"
+  type        = list(string)
+  default     = ["10.1.0.0/16"]
 }
 
 variable "subnet_external_cidr" {
@@ -35,15 +41,15 @@ variable "subnet_internal_cidr" {
 }
 
 variable "subnet_dmz_cidr" {
-  description = "CIDR for the DMZ subnet (web server)"
+  description = "CIDR for the DMZ subnet (NVA DMZ NICs + webserver)"
   type        = string
   default     = "10.0.3.0/24"
 }
 
 variable "subnet_appgw_cidr" {
-  description = "CIDR for the dedicated Application Gateway subnet"
+  description = "CIDR for the dedicated Application Gateway subnet (in the App GW VNet)"
   type        = string
-  default     = "10.0.1.0/24"
+  default     = "10.1.1.0/24"
 }
 
 variable "admin_username" {
@@ -87,7 +93,7 @@ variable "allowed_ssh_cidr" {
 variable "webserver_ip" {
   description = "Static private IP for the webserver in the DMZ subnet (10.0.3.0/24)"
   type        = string
-  default     = "10.0.3.10"
+  default     = "10.0.3.100"
 }
 
 variable "nva1_external_ip" {
@@ -114,16 +120,34 @@ variable "nva2_internal_ip" {
   default     = "10.0.4.11"
 }
 
+variable "nva1_dmz_ip" {
+  description = "Static private IP for NVA1 DMZ NIC in snet-dmz (10.0.3.0/24)"
+  type        = string
+  default     = "10.0.3.20"
+}
+
+variable "nva2_dmz_ip" {
+  description = "Static private IP for NVA2 DMZ NIC in snet-dmz (10.0.3.0/24)"
+  type        = string
+  default     = "10.0.3.21"
+}
+
 variable "internal_lb_frontend_ip" {
-  description = "Static private IP for the internal LB frontend in snet-internal (10.0.4.0/24)"
+  description = "Static private IP for the back LB internal frontend in snet-internal (10.0.4.0/24)"
   type        = string
   default     = "10.0.4.4"
 }
 
-variable "appgw_private_ip" {
-  description = "Static private IP for the App Gateway private frontend in snet-appgateway (10.0.1.0/24)"
+variable "dmz_lb_frontend_ip" {
+  description = "Static private IP for the back LB DMZ frontend in snet-dmz (10.0.3.0/24)"
   type        = string
-  default     = "10.0.1.10"
+  default     = "10.0.3.10"
+}
+
+variable "appgw_private_ip" {
+  description = "Static private IP for the App Gateway private frontend in snet-appgateway (10.1.1.0/24)"
+  type        = string
+  default     = "10.1.1.10"
 }
 
 variable "appgw_min_capacity" {

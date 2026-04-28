@@ -104,7 +104,7 @@ resource "azurerm_application_gateway" "main" {
 
   firewall_policy_id = azurerm_web_application_firewall_policy.appgw.id
 
-  # Required gateway IP config (this subnet must be dedicated to the AppGW)
+  # Required gateway IP config — subnet is in the App GW VNet (vnet-appgw-*)
   gateway_ip_configuration {
     name      = "appGatewayIpConfig"
     subnet_id = azurerm_subnet.appgw.id

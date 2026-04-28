@@ -1,17 +1,18 @@
 # ---------------------------------------------------------------------------
 # User-defined routes (UDRs)
 #
-# This is the heart of the asymmetric routing reproduction.
+# DMZ subnet: webserver's default route → back LB DMZ frontend (10.0.3.10).
+#   The DMZ LB hashes return traffic (SourceIP) to a NVA DMZ NIC (eth2).
+#   That NVA may not own the conntrack flow for the inbound direction → DROP.
+#   This is the asymmetric routing bug.
 #
-# DMZ subnet: webserver's default route points at the INTERNAL LB.
-# The internal LB (5-tuple hash, no HA Ports / floating IP) load-balances return
-# traffic to one of the two NVAs - which is NOT necessarily the same NVA that
-# handled the inbound SYN. The "wrong" NVA has no conntrack state -> drops.
+# AppGW subnet: route for the firewall VNet CIDR → back LB internal frontend
+#   (10.0.4.4). Forces App GW → webserver through NVA eth1 path.
 #
-# Toggle the LB rule in internal-lb.tf (broken-by-default vs HA Ports fix) to test.
+# Internal subnet: empty route table (BGP propagation enabled, no overrides).
 # ---------------------------------------------------------------------------
 
-# DMZ default route -> internal LB (forces webserver replies through the firewall path)
+# DMZ default route → back LB DMZ frontend (webserver return path through NVAs)
 resource "azurerm_route_table" "dmz" {
   name                = "rt-dmz"
   location            = azurerm_resource_group.lab.location
@@ -19,10 +20,10 @@ resource "azurerm_route_table" "dmz" {
   tags                = var.tags
 
   route {
-    name                   = "default-via-internal-lb"
+    name                   = "default-via-dmz-lb"
     address_prefix         = "0.0.0.0/0"
     next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = var.internal_lb_frontend_ip
+    next_hop_in_ip_address = var.dmz_lb_frontend_ip
   }
 }
 
@@ -31,20 +32,18 @@ resource "azurerm_subnet_route_table_association" "dmz" {
   route_table_id = azurerm_route_table.dmz.id
 }
 
-# AppGw subnet: traffic to the DMZ webserver should also go via the firewalls
-# (so AppGW -> firewall -> webserver, not AppGW -> webserver direct).
-# This matches the "NAT behind Active/Active behind the firewall" requirement.
+# AppGW subnet route → back LB internal frontend (forces App GW → webserver via NVA eth1)
+# This route is in VNet 2 (appgw VNet) but the next hop (10.0.4.4) is reachable
+# via VNet peering with allow_forwarded_traffic = true.
 resource "azurerm_route_table" "appgw" {
   name                = "rt-appgw"
   location            = azurerm_resource_group.lab.location
   resource_group_name = azurerm_resource_group.lab.name
   tags                = var.tags
 
-  # Only override the DMZ route so we don't break AppGW's required Internet egress
-  # for control plane (AppGW v2 needs outbound internet to AzureGatewayManager etc.)
   route {
-    name                   = "dmz-via-internal-lb"
-    address_prefix         = var.subnet_dmz_cidr
+    name                   = "fw-vnet-via-internal-lb"
+    address_prefix         = var.vnet_address_space[0]
     next_hop_type          = "VirtualAppliance"
     next_hop_in_ip_address = var.internal_lb_frontend_ip
   }
@@ -55,9 +54,7 @@ resource "azurerm_subnet_route_table_association" "appgw" {
   route_table_id = azurerm_route_table.appgw.id
 }
 
-# Internal subnet (where NVA "trust" NICs live): explicit route for the AppGW
-# subnet pointing back at the internal LB so return traffic stays symmetric on
-# the firewall side. (Useful once you start playing with the fixes.)
+# Internal subnet: empty table, BGP propagation on (no forced routing overrides needed)
 resource "azurerm_route_table" "internal" {
   name                          = "rt-internal"
   location                      = azurerm_resource_group.lab.location
