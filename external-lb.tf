@@ -65,7 +65,7 @@ resource "azurerm_lb_rule" "external_443" {
   backend_address_pool_ids       = [azurerm_lb_backend_address_pool.external.id]
   probe_id                       = azurerm_lb_probe.external.id
   disable_outbound_snat          = true
-  enable_floating_ip             = true
+  floating_ip_enabled            = true
   load_distribution              = "SourceIP"
   idle_timeout_in_minutes        = 4
 }
