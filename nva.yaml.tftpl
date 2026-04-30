@@ -40,12 +40,11 @@ write_files:
       # Required for routing
       net.ipv4.ip_forward = 1
 
-      # Disable reverse-path filter on all NICs so we can observe asymmetric traffic
+      # Disable reverse-path filter (eth* names are unreliable — Azure assigns
+      # NICs to Linux in MAC/PCI order, not Terraform-resource order, so we
+      # also clear it dynamically per-interface in nva-firewall.sh).
       net.ipv4.conf.all.rp_filter = 0
       net.ipv4.conf.default.rp_filter = 0
-      net.ipv4.conf.eth0.rp_filter = 0
-      net.ipv4.conf.eth1.rp_filter = 0
-      net.ipv4.conf.eth2.rp_filter = 0
 
       # ============================================================
       # CRITICAL FOR REPRODUCING THE BUG:
@@ -65,24 +64,44 @@ write_files:
 
       APPGW_PRIVATE_IP="${appgw_private_ip}"
       WEBSERVER_IP="${webserver_ip}"
+      EXTERNAL_CIDR="${external_cidr}"
       INTERNAL_CIDR="${internal_cidr}"
       DMZ_CIDR="${dmz_cidr}"
       APPGW_CIDR="${appgw_cidr}"
 
       # ------------------------------------------------------------------
-      # Routing: Azure sets a default route via eth0. The App GW VNet
-      # (10.1.0.0/16) is reachable via VNet peering, but the NVA OS routing
-      # table needs an explicit route via eth1's gateway so packets get
-      # forwarded out the correct NIC.
-      # eth2 (DMZ) is directly connected — no static route needed.
+      # Detect interfaces by subnet — Azure does NOT guarantee that NICs
+      # appear in Linux as eth0/eth1/eth2 in the same order they're listed
+      # in Terraform's network_interface_ids. We've observed eth1↔eth2
+      # swaps. Detect by IP/subnet match instead.
       # ------------------------------------------------------------------
-      INT_GW=$(ip -4 route show dev eth1 | awk '/proto dhcp|kernel/ {print $1; exit}' | awk -F/ '{split($1,a,"."); print a[1]"."a[2]"."a[3]".1"}')
-      if [ -z "$INT_GW" ]; then
-        INT_GW=$(ip -4 -o addr show eth1 | awk '{print $4}' | awk -F/ '{split($1,a,"."); print a[1]"."a[2]"."a[3]".1"}')
-      fi
+      iface_in_subnet() {
+        local cidr="$1"
+        local prefix
+        prefix=$(echo "$cidr" | awk -F'.' '{print $1"."$2"."$3"."}')
+        for iface in $(ls /sys/class/net/ | grep -v '^lo$'); do
+          if ip -4 -o addr show "$iface" 2>/dev/null | awk '{print $4}' | grep -q "^$prefix"; then
+            echo "$iface"; return
+          fi
+        done
+      }
+      EXT_IF=$(iface_in_subnet "$EXTERNAL_CIDR")
+      INT_IF=$(iface_in_subnet "$INTERNAL_CIDR")
+      DMZ_IF=$(iface_in_subnet "$DMZ_CIDR")
+      logger -t nva-firewall "Detected interfaces: ext=$EXT_IF int=$INT_IF dmz=$DMZ_IF"
+      [ -z "$EXT_IF" ] || [ -z "$INT_IF" ] || [ -z "$DMZ_IF" ] && {
+        logger -t nva-firewall "ERROR: failed to detect one or more interfaces"; exit 1
+      }
 
-      ip route replace $APPGW_CIDR via $INT_GW dev eth1
-      logger -t nva-firewall "Added route: $APPGW_CIDR via $INT_GW (eth1)"
+      # Per-interface rp_filter (sysctl by-name was unreliable for the same reason)
+      for i in "$EXT_IF" "$INT_IF" "$DMZ_IF"; do
+        echo 0 > "/proc/sys/net/ipv4/conf/$i/rp_filter"
+      done
+
+      # Add OS route for App GW VNet via the internal NIC's subnet gateway.
+      INT_GW=$(ip -4 -o addr show "$INT_IF" | awk '{print $4}' | awk -F/ '{split($1,a,"."); print a[1]"."a[2]"."a[3]".1"}')
+      ip route replace "$APPGW_CIDR" via "$INT_GW" dev "$INT_IF"
+      logger -t nva-firewall "Added route: $APPGW_CIDR via $INT_GW ($INT_IF)"
 
       # Flush any prior firewall state
       iptables -F
@@ -122,26 +141,26 @@ write_files:
       # DNAT inbound 443 from front LB → App Gateway private IP.
       # The App GW is "NATed behind the firewalls" — clients hit the front LB,
       # NVAs DNAT to the App GW listener, App GW handles SSL/WAF/routing.
-      iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 443 -j DNAT --to-destination $APPGW_PRIVATE_IP:443
+      iptables -t nat -A PREROUTING -i "$EXT_IF" -p tcp --dport 443 -j DNAT --to-destination $APPGW_PRIVATE_IP:443
 
       # DNAT inbound 443 from back LB internal frontend → webserver. (Option B)
       # AppGW subnet UDR sends App-GW→webserver traffic to back LB internal
       # frontend (10.0.4.4). With enable_floating_ip=false (prod parity), the
-      # LB rewrites dst to NVA eth1 IP, which would normally hit the local
-      # INPUT chain. This DNAT rule kicks in first (PREROUTING precedes the
-      # routing decision), rewriting dst back to the webserver so the packet
-      # gets forwarded out eth2.
-      iptables -t nat -A PREROUTING -i eth1 -p tcp --dport 443 -j DNAT --to-destination $WEBSERVER_IP:443
+      # LB rewrites dst to the NVA's internal-NIC IP, which would normally hit
+      # the local INPUT chain. This DNAT rule kicks in first (PREROUTING
+      # precedes the routing decision), rewriting dst back to the webserver so
+      # the packet gets forwarded out the DMZ NIC.
+      iptables -t nat -A PREROUTING -i "$INT_IF" -p tcp --dport 443 -j DNAT --to-destination $WEBSERVER_IP:443
 
-      # SNAT outbound to App GW VNet on eth1.
+      # SNAT outbound to App GW VNet on the internal NIC.
       # Without this, App GW would see src=client_IP and reply via its own
       # subnet's routing (Internet next-hop, bypassing the NVA), breaking
       # symmetric return. SNAT makes App GW see the request as coming from
-      # the NVA's eth1 IP, so it replies to the NVA.
-      iptables -t nat -A POSTROUTING -o eth1 -d $APPGW_CIDR -j MASQUERADE
+      # the NVA's internal-NIC IP, so it replies to the NVA.
+      iptables -t nat -A POSTROUTING -o "$INT_IF" -d $APPGW_CIDR -j MASQUERADE
 
-      # SNAT outbound to internet via eth0 (NVA's own egress + any DMZ→internet)
-      iptables -t nat -A POSTROUTING -o eth0 ! -d 10.0.0.0/8 -j MASQUERADE
+      # SNAT outbound to internet via external NIC (NVA's own egress).
+      iptables -t nat -A POSTROUTING -o "$EXT_IF" ! -d 10.0.0.0/8 -j MASQUERADE
 
       # Persist
       netfilter-persistent save

@@ -56,7 +56,11 @@ log "App Gateway public IP: $APPGW_IP"
 log "App Gateway private  : $APPGW_PRIVATE_IP   (NVAs DNAT 443 here)"
 log "Webserver private IP : $WEBSERVER_IP   (App GW backend, reached via VNet peering)"
 
-SSH_OPTS="-o StrictHostKeyChecking=no -o ConnectTimeout=10 -o BatchMode=yes -o LogLevel=ERROR"
+# UserKnownHostsFile=/dev/null skips the known_hosts check entirely. NVA public
+# IPs get reused across destroy/apply cycles but the host keys regenerate,
+# which makes StrictHostKeyChecking=no insufficient (it auto-accepts new keys
+# but blocks on changed ones).
+SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 -o BatchMode=yes -o LogLevel=ERROR"
 # Auto-include the lab key if it exists and isn't already loaded in the agent.
 # Without this the script hangs on Phase 0 in shells that don't have the agent.
 LAB_KEY="${HOME}/.ssh/milbank_lab"

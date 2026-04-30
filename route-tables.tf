@@ -26,9 +26,14 @@ resource "azurerm_route_table" "appgw" {
   resource_group_name = azurerm_resource_group.lab.name
   tags                = var.tags
 
+  # Only route DMZ subnet (where the webserver lives) through the firewalls.
+  # Using vnet_address_space (10.0.0.0/16) was too broad — it also caught
+  # App-GW replies to NVA internal NIC IPs, sending them through the back LB
+  # which hashes by SourceIP and may pick a *different* NVA than the one that
+  # initiated the flow → asymmetric routing on the App-GW-to-NVA reply leg.
   route {
-    name                   = "fw-vnet-via-internal-lb"
-    address_prefix         = var.vnet_address_space[0]
+    name                   = "dmz-via-internal-lb"
+    address_prefix         = var.subnet_dmz_cidr
     next_hop_type          = "VirtualAppliance"
     next_hop_in_ip_address = var.internal_lb_frontend_ip
   }
