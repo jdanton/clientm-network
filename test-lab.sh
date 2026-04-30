@@ -55,6 +55,12 @@ log "App Gateway public IP: $APPGW_IP"
 log "Webserver private IP : $WEBSERVER_IP"
 
 SSH_OPTS="-o StrictHostKeyChecking=no -o ConnectTimeout=10 -o BatchMode=yes -o LogLevel=ERROR"
+# Auto-include the lab key if it exists and isn't already loaded in the agent.
+# Without this the script hangs on Phase 0 in shells that don't have the agent.
+LAB_KEY="${HOME}/.ssh/milbank_lab"
+if [[ -f "$LAB_KEY" ]]; then
+  SSH_OPTS="$SSH_OPTS -i $LAB_KEY -o IdentitiesOnly=yes"
+fi
 SSH1="ssh $SSH_OPTS ${ADMIN_USER}@${NVA1_IP}"
 SSH2="ssh $SSH_OPTS ${ADMIN_USER}@${NVA2_IP}"
 
@@ -166,9 +172,10 @@ if [[ $START_PHASE -le 2 ]]; then
   section "Phase 2 — Reproduce the asymmetric routing bug"
 
   echo ""
-  echo "The internal LB is configured with a per-port TCP rule (no HA Ports, no floating IP)."
-  echo "When the webserver replies, the LB may hash the return flow to a different NVA than"
-  echo "the one that saw the SYN. That NVA has no conntrack entry → marks packet INVALID → drops."
+  echo "The back LB has HA Ports rules with SourceIP distribution (matches prod). The DMZ"
+  echo "frontend (10.0.3.10) hashes webserver return traffic on src=webserver_ip — independently"
+  echo "from how the inbound (src=AppGW_ip) was hashed. ~50% of flows land on the wrong NVA,"
+  echo "which has no conntrack entry → INVALID → DROP."
   echo ""
 
   log "Clearing conntrack tables on both NVAs..."
@@ -252,32 +259,32 @@ if [[ $START_PHASE -le 4 ]]; then
   section "Phase 4 — Apply the fix"
 
   echo ""
-  echo "Two fixes are available — pick one:"
+  echo "FIX — NVA SNAT on eth2 (DMZ NIC):"
   echo ""
-  echo "  FIX A — Internal LB HA Ports (preferred, matches prod GWLB pattern):"
-  echo "    In internal-lb.tf:"
-  echo "      1. Comment out the  azurerm_lb_rule.internal_443  block"
-  echo "      2. Uncomment the    azurerm_lb_rule.internal_haports  block"
-  echo "      3. Run: terraform apply -auto-approve"
+  echo "  In nva.yaml.tftpl, uncomment the line in the '>>> Toggle for the FIX <<<' block:"
+  echo "    iptables -t nat -A POSTROUTING -o eth2 -p tcp --dport 443 -d \$WEBSERVER_IP -j MASQUERADE"
   echo ""
-  echo "  FIX B — NVA-side SNAT (firewall-local fix, simulates SNAT on Palo Alto):"
-  echo "    In nva.yaml.tftpl, uncomment:"
-  echo "      iptables -t nat -A POSTROUTING -o eth1 -p tcp --dport 443 -d \$WEBSERVER_IP -j MASQUERADE"
-  echo "    Then reprovision the NVAs (terraform taint + apply, or rerun the script on the VMs)."
+  echo "  Then re-run the firewall script on both NVAs (no terraform apply needed):"
+  echo "    ssh azureuser@${NVA1_IP} 'sudo /usr/local/sbin/nva-firewall.sh'"
+  echo "    ssh azureuser@${NVA2_IP} 'sudo /usr/local/sbin/nva-firewall.sh'"
+  echo ""
+  echo "  With SNAT on eth2, the webserver sees the NVA's DMZ IP as the source and replies"
+  echo "  directly to that NVA — bypassing the back LB DMZ frontend → symmetric path."
+  echo ""
+  echo "  (Production-grade fix: Azure Gateway Load Balancer — not in this lab.)"
   echo ""
 
-  read -rp "Apply Fix A now? (terraform apply will run) [y/N]: " APPLY
+  read -rp "Apply the SNAT fix on both NVAs now (live iptables, no terraform needed)? [y/N]: " APPLY
   if [[ ${APPLY,,} == "y" ]]; then
-    log "Switching to HA Ports rule — edit internal-lb.tf then press Enter..."
-    info "  Comment out: resource \"azurerm_lb_rule\" \"internal_443\""
-    info "  Uncomment:   resource \"azurerm_lb_rule\" \"internal_haports\""
-    pause
-
-    log "Running terraform apply..."
-    terraform apply -auto-approve
-    pass "Terraform apply complete"
+    SNAT_RULE="sudo iptables -t nat -A POSTROUTING -o eth2 -p tcp --dport 443 -d ${WEBSERVER_IP} -j MASQUERADE"
+    log "Adding SNAT rule on NVA1..."
+    $SSH1 "$SNAT_RULE && sudo iptables -t nat -L POSTROUTING -v -n --line-numbers"
+    log "Adding SNAT rule on NVA2..."
+    $SSH2 "$SNAT_RULE && sudo iptables -t nat -L POSTROUTING -v -n --line-numbers"
+    pass "Fix applied live on both NVAs — proceed to Phase 5"
+    info "(To make persistent across reboots, also uncomment the line in nva.yaml.tftpl)"
   else
-    warn "Skipping terraform apply — run manually, then re-run this script with --phase 5"
+    warn "Skipping — apply manually, then re-run with --phase 5"
     exit 0
   fi
 fi
