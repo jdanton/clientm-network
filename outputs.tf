@@ -45,21 +45,21 @@ output "webserver_ip" {
 output "test_commands" {
   description = "Useful one-liners for verifying the lab."
   value = <<-EOT
-    # SSH to NVA1 (debug iptables / conntrack)
+    # SSH to NVA1 / NVA2
     ssh ${var.admin_username}@${azurerm_public_ip.nva["nva1"].ip_address}
-
-    # SSH to NVA2
     ssh ${var.admin_username}@${azurerm_public_ip.nva["nva2"].ip_address}
 
-    # Test inbound through front LB (triggers the NVA path)
+    # Inbound test through front LB (DNAT'd to App GW, App GW → webserver)
     curl -kv --resolve connect.clientmworkspace.com:443:${azurerm_public_ip.external_lb.ip_address} \
       https://connect.clientmworkspace.com/healthz
 
-    # On NVA1: watch packets for the webserver flow
-    sudo tcpdump -i any -nn 'host ${var.webserver_ip} and port 443'
+    # The bug lives on the webserver → App GW return path. Watch eth2 (DMZ NIC)
+    # on the NVA that the DMZ LB hashes the webserver to — it'll see SYN-ACKs
+    # from ${var.webserver_ip} → ${var.appgw_private_ip} with no matching conntrack:
+    sudo tcpdump -i eth2 -nn "host ${var.appgw_private_ip} and host ${var.webserver_ip}"
 
-    # On NVA2: verify RETURN traffic arrives with no conntrack entry (the bug)
-    sudo conntrack -L | grep ${var.webserver_ip}
+    # On either NVA: confirm the INVALID drop counter is incrementing
+    sudo iptables -L FORWARD -v -n | grep INVALID
 
     # On either NVA: full firewall state
     sudo nva-trace

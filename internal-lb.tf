@@ -68,13 +68,25 @@ resource "azurerm_network_interface_backend_address_pool_association" "internal_
   backend_address_pool_id = azurerm_lb_backend_address_pool.internal_dmz.id
 }
 
+# Lab-specific: probe TCP:22 (sshd) instead of TCP:443. The NVAs DNAT 443 to the
+# webserver, so a 443 probe ends up depending on the webserver being healthy AND
+# on a symmetric reply path (which doesn't exist in this topology — the
+# webserver's reply to 168.63.129.16 goes via the UDR through the DMZ LB to
+# potentially a different NVA, and nothing reverse-NATs it). Probing 22 lets the
+# NVA itself answer the probe via sshd, breaking the chicken-and-egg at boot.
+# Production Palo Altos answer 443 directly via PAN-OS, so this isn't an issue
+# for them.
 resource "azurerm_lb_probe" "internal" {
-  name                = "probe-tcp-443"
+  name                = "probe-back-lb"
   loadbalancer_id     = azurerm_lb.internal.id
   protocol            = "Tcp"
-  port                = 443
+  port                = 22
   interval_in_seconds = 10
   number_of_probes    = 1
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # HA Ports rule — internal frontend (App GW → webserver inbound via NVA eth1)
@@ -93,6 +105,16 @@ resource "azurerm_lb_rule" "internal_haports" {
 }
 
 # HA Ports rule — DMZ frontend (webserver return via NVA eth2)
+#
+# Lab-specific: floating_ip_enabled = true (production uses false). With false,
+# the LB rewrites destination to backend NVA eth2 IP, packet hits the NVA's
+# INPUT chain as local-destined and gets RST'd (kernel default for unbound port).
+# Palo Alto firewalls in production handle this via session-table forwarding
+# regardless of destination IP — Linux netfilter does not. With floating IP on,
+# the destination (original client IP) is preserved, conntrack matches the
+# original DNAT'd flow, and reverse-NAT works through the FORWARD chain.
+# The asymmetric routing bug still reproduces: SourceIP hash on src=webserver_IP
+# can land on a different NVA than the one that owns the conntrack entry.
 resource "azurerm_lb_rule" "internal_dmz_haports" {
   name                           = "rule-haports-dmz"
   loadbalancer_id                = azurerm_lb.internal.id
@@ -105,4 +127,5 @@ resource "azurerm_lb_rule" "internal_dmz_haports" {
   load_distribution              = "SourceIP"
   idle_timeout_in_minutes        = 4
   disable_outbound_snat          = true
+  floating_ip_enabled            = true
 }

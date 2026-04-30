@@ -42,14 +42,19 @@ resource "azurerm_network_interface_backend_address_pool_association" "external"
   backend_address_pool_id = azurerm_lb_backend_address_pool.external.id
 }
 
-# Health probe on TCP:443 — matches production probe-lb-frontend-edge-prod-eastus-001
+# Lab-specific: probe TCP:22 (sshd) instead of 443 — see comment in internal-lb.tf
+# for why. Production probe is TCP:443 because Palo Alto answers locally on 443.
 resource "azurerm_lb_probe" "external" {
-  name                = "probe-tcp-443"
+  name                = "probe-front-lb"
   loadbalancer_id     = azurerm_lb.external.id
   protocol            = "Tcp"
-  port                = 443
+  port                = 22
   interval_in_seconds = 15
   number_of_probes    = 1
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # HTTPS inbound rule.

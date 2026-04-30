@@ -13,10 +13,11 @@
 
 locals {
   nva_cloud_init = templatefile("${path.module}/nva.yaml.tftpl", {
-    webserver_ip  = var.webserver_ip
-    internal_cidr = var.subnet_internal_cidr
-    dmz_cidr      = var.subnet_dmz_cidr
-    appgw_cidr    = var.vnet_appgw_address_space[0]
+    webserver_ip     = var.webserver_ip
+    appgw_private_ip = var.appgw_private_ip
+    internal_cidr    = var.subnet_internal_cidr
+    dmz_cidr         = var.subnet_dmz_cidr
+    appgw_cidr       = var.vnet_appgw_address_space[0]
   })
 }
 

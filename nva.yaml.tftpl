@@ -1,16 +1,25 @@
 #cloud-config
 # ============================================================================
 # NVA cloud-init: turns a plain Ubuntu VM into a stateful router/firewall.
-# Mirrors the Palo Alto behavior relevant to the asymmetric routing bug:
+# Mirrors the Palo Alto behavior in the production "App Gateway behind firewall"
+# topology:
 #   - IP forwarding ON
 #   - Stateful FW (conntrack ESTABLISHED,RELATED + INVALID drop)
-#   - DNAT inbound 443 (from eth0 or eth1) → webserver:443
-#   - SNAT outbound to internet via eth0
+#   - DNAT inbound 443 (eth0) → App Gateway private IP
+#   - SNAT outbound to App GW VNet on eth1 (so App GW replies come back via NVA)
+#   - SNAT outbound to internet on eth0
+#
+# Data flow:
+#   Client → Front LB → NVA eth0 → DNAT to App GW private IP
+#         → forward via eth1 (SNAT to NVA eth1 IP) → App GW listener
+#   App GW backend pool = webserver, reached DIRECTLY via VNet peering
+#   Webserver reply to App GW → DMZ default route (10.0.3.10) → NVA eth2
+#   That NVA has no conntrack entry for the App-GW→webserver flow → INVALID → DROP
 #
 # 3-NIC layout:
 #   eth0 = external (snet-external, faces front LB)
-#   eth1 = internal (snet-internal, faces back LB internal frontend)
-#   eth2 = DMZ      (snet-dmz,      faces back LB DMZ frontend)
+#   eth1 = internal (snet-internal, route to App GW VNet via peering)
+#   eth2 = DMZ      (snet-dmz,      receives webserver return traffic via DMZ LB)
 # ============================================================================
 package_update: true
 package_upgrade: false
@@ -54,16 +63,18 @@ write_files:
       #!/bin/bash
       set -euo pipefail
 
+      APPGW_PRIVATE_IP="${appgw_private_ip}"
       WEBSERVER_IP="${webserver_ip}"
       INTERNAL_CIDR="${internal_cidr}"
       DMZ_CIDR="${dmz_cidr}"
       APPGW_CIDR="${appgw_cidr}"
 
       # ------------------------------------------------------------------
-      # Routing: Azure sets a default route via eth0. Add explicit routes
-      # for other VNet subnets via eth1's gateway (internal NIC).
+      # Routing: Azure sets a default route via eth0. The App GW VNet
+      # (10.1.0.0/16) is reachable via VNet peering, but the NVA OS routing
+      # table needs an explicit route via eth1's gateway so packets get
+      # forwarded out the correct NIC.
       # eth2 (DMZ) is directly connected — no static route needed.
-      # APPGW_CIDR covers the full App GW VNet (10.1.0.0/16) via eth1.
       # ------------------------------------------------------------------
       INT_GW=$(ip -4 route show dev eth1 | awk '/proto dhcp|kernel/ {print $1; exit}' | awk -F/ '{split($1,a,"."); print a[1]"."a[2]"."a[3]".1"}')
       if [ -z "$INT_GW" ]; then
@@ -89,10 +100,10 @@ write_files:
       # INVALID drops asymmetric returns on the NVA that didn't see the SYN
       iptables -A FORWARD -m conntrack --ctstate INVALID -j DROP
 
-      # Allow new inbound HTTPS flows destined for the webserver
-      iptables -A FORWARD -p tcp --dport 443 -d $WEBSERVER_IP -m conntrack --ctstate NEW -j ACCEPT
+      # Allow new inbound HTTPS flows destined for the App Gateway
+      iptables -A FORWARD -p tcp --dport 443 -d $APPGW_PRIVATE_IP -m conntrack --ctstate NEW -j ACCEPT
 
-      # Allow new flows originating from App GW VNet (inbound via eth1)
+      # Allow new flows originating from App GW VNet (return path of App GW → NVA → client)
       iptables -A FORWARD -s $APPGW_CIDR -m conntrack --ctstate NEW -j ACCEPT
 
       # Allow new flows from internal subnet
@@ -104,27 +115,25 @@ write_files:
       # ------------------------------------------------------------------
       # NAT
       # ------------------------------------------------------------------
-      # DNAT inbound 443 from external (VPN clients via front LB) → webserver
-      iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 443 -j DNAT --to-destination $WEBSERVER_IP:443
+      # DNAT inbound 443 from front LB → App Gateway private IP.
+      # The App GW is "NATed behind the firewalls" — clients hit the front LB,
+      # NVAs DNAT to the App GW listener, App GW handles SSL/WAF/routing.
+      iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 443 -j DNAT --to-destination $APPGW_PRIVATE_IP:443
 
-      # DNAT inbound 443 from internal LB (App GW path via eth1) → webserver
-      iptables -t nat -A PREROUTING -i eth1 -p tcp --dport 443 -j DNAT --to-destination $WEBSERVER_IP:443
+      # SNAT outbound to App GW VNet on eth1.
+      # Without this, App GW would see src=client_IP and reply via its own
+      # subnet's routing (Internet next-hop, bypassing the NVA), breaking
+      # symmetric return. SNAT makes App GW see the request as coming from
+      # the NVA's eth1 IP, so it replies to the NVA.
+      iptables -t nat -A POSTROUTING -o eth1 -d $APPGW_CIDR -j MASQUERADE
 
-      # SNAT outbound to internet via eth0
+      # SNAT outbound to internet via eth0 (NVA's own egress + any DMZ→internet)
       iptables -t nat -A POSTROUTING -o eth0 ! -d 10.0.0.0/8 -j MASQUERADE
-
-      # ------------------------------------------------------------------
-      # >>> Toggle for the FIX <<<
-      # SNAT traffic forwarded to the webserver via eth2 (DMZ NIC).
-      # Webserver then replies to this NVA's DMZ IP directly, bypassing
-      # the back LB DMZ frontend — forces symmetric return path.
-      # ------------------------------------------------------------------
-      # iptables -t nat -A POSTROUTING -o eth2 -p tcp --dport 443 -d $WEBSERVER_IP -j MASQUERADE
 
       # Persist
       netfilter-persistent save
 
-      logger -t nva-firewall "NVA firewall rules applied. Webserver=$WEBSERVER_IP"
+      logger -t nva-firewall "NVA firewall rules applied. AppGW=$APPGW_PRIVATE_IP, Webserver=$WEBSERVER_IP"
 
   - path: /etc/systemd/system/nva-firewall.service
     permissions: '0644'

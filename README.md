@@ -73,26 +73,41 @@ Two VNets, matching production:
 
 ### The bug path
 
+The App Gateway is **NATed behind the firewalls** — clients hit the front LB,
+the NVAs DNAT inbound 443 to the App GW's private listener. App GW's backend
+pool is the webserver, which it reaches **directly via VNet peering** (no NVA
+on the way in). The asymmetry is on the **App-GW → webserver** leg:
+
 ```
-App GW (10.1.1.10) ──UDR──▶ Back LB vip-internal (10.0.4.4)
-                              │ SourceIP hash on 10.1.1.10 → NVA-A eth1
-                              ▼
-                            NVA-A eth1 ──DNAT──▶ Webserver (10.0.3.100)
-                                                        │
-                                   default route (0.0.0.0/0)
-                                                        │
-                                                        ▼
-                              Back LB vip-dmz (10.0.3.10)
-                              │ SourceIP hash on 10.0.3.100 → NVA-B eth2
-                              ▼
-                            NVA-B eth2
-                              │ no conntrack entry (NVA-A owns the flow)
-                              │ nf_conntrack_tcp_loose=0 → INVALID → DROP
-                              ▼
-                           ✗ connection reset / timeout
+Client ──▶ Front LB ──▶ NVA-X eth0
+                          │ DNAT :443 → AppGW (10.1.1.10)
+                          │ SNAT eth1 → NVA-X eth1 IP
+                          ▼
+                       App Gateway (10.1.1.10, listener)
+                          │ backend pool = webserver
+                          │ reaches webserver DIRECTLY via VNet peering
+                          ▼
+                       Webserver (10.0.3.100)
+                          │ replies to App GW (src=10.0.3.100, dst=10.1.1.10)
+                          │ DMZ default route → 10.0.3.10
+                          ▼
+                       Back LB vip-dmz (10.0.3.10)
+                          │ SourceIP hash on 10.0.3.100 → NVA-Y eth2
+                          ▼
+                       NVA-Y eth2
+                          │ no conntrack entry — NVA-Y never saw the inbound
+                          │ App-GW→webserver flow (it bypassed all NVAs)
+                          │ nf_conntrack_tcp_loose=0 → INVALID → DROP
+                          ▼
+                       ✗ webserver replies vanish → App GW backend probe fails
+                         → front LB probe to App-GW-via-NVA also fails
+                         → 502 / timeout to client
 ```
 
-SourceIP distribution hashes on source IP only. Inbound (src = App GW) and return (src = webserver) hash independently — 50% chance they land on different NVAs with only two in the pool. The NVA that receives return traffic has never seen the SYN, marks the packet INVALID, and drops it.
+The front LB's data-path availability for the App-GW frontend goes to 0% in
+production because the probe path has the same asymmetry: the SYN-ACK reply
+from App GW is taking a path that doesn't go back through the NVA that did
+the DNAT.
 
 ## Prerequisites
 
@@ -133,26 +148,19 @@ Expected broken output: a mix of `200` and `000` (timeout/reset).
 
 To see exactly where it dies, SSH to both NVAs and run `sudo nva-trace`. The NVA receiving return traffic without a conntrack entry will show incrementing INVALID drops in the FORWARD chain.
 
-## Applying the fix
+## Applying a fix
 
-The easiest fix is SNAT on the NVAs' DMZ NIC (eth2). With SNAT, the webserver sees the NVA's DMZ IP as the source and replies directly to that NVA — bypassing the back LB DMZ frontend entirely and forcing symmetric return.
+The asymmetry is between two paths:
+- **App GW → webserver**: direct via VNet peering (no NVA)
+- **Webserver → App GW**: through DMZ LB → NVA eth2
 
-Open [nva.yaml.tftpl](nva.yaml.tftpl) and uncomment the line in the `# >>> Toggle for the FIX <<<` section:
+Two ways to make the return path match the (NVA-bypass) inbound path:
 
-```bash
-iptables -t nat -A POSTROUTING -o eth2 -p tcp --dport 443 -d $WEBSERVER_IP -j MASQUERADE
-```
+**Option A — Drop the DMZ UDR.** Remove the webserver subnet's `0.0.0.0/0 → 10.0.3.10` route in [route-tables.tf](route-tables.tf). The webserver's reply to App GW then goes back via VNet peering, the same direct path App GW used inbound. Symmetric, no NVA in either direction. **Trade-off:** the firewalls no longer see App-GW-to-webserver traffic — defeats the security model.
 
-Then SSH to both NVAs and re-run the firewall script:
+**Option B — Make the inbound path go through the NVAs too.** Restore an AppGW-subnet UDR forcing `10.0.0.0/16 → back LB internal frontend (10.0.4.4)`. App-GW-to-webserver then goes through an NVA, which gets a conntrack entry, and the return via DMZ LB will match. *Catch:* the back LB internal rule has `enable_floating_ip = false` (matches prod), so packet dst gets rewritten to NVA-eth1-IP, hitting the local INPUT chain instead of FORWARD — needs eth1:443 DNAT or floating IP enabled to function on Linux NVAs. Production Palo Altos handle this natively.
 
-```bash
-ssh azureuser@$(terraform output -raw nva1_public_ip) 'sudo /usr/local/sbin/nva-firewall.sh'
-ssh azureuser@$(terraform output -raw nva2_public_ip) 'sudo /usr/local/sbin/nva-firewall.sh'
-```
-
-No `terraform apply` needed. Re-run the curl loop and all requests should return 200.
-
-**Trade-off:** SNAT hides the original source IP from the webserver (it sees the NVA's DMZ IP). For production, the correct fix is a **Gateway Load Balancer** — see the [Azure GWLB docs](https://learn.microsoft.com/en-us/azure/load-balancer/gateway-overview) for the bump-in-the-wire pattern.
+**Option C — Gateway Load Balancer.** The Microsoft-recommended pattern. Not implemented in this repo; see the [Azure GWLB docs](https://learn.microsoft.com/en-us/azure/load-balancer/gateway-overview).
 
 ## WAF mode
 

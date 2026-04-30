@@ -2,17 +2,24 @@
 # User-defined routes (UDRs)
 #
 # DMZ subnet: webserver's default route → back LB DMZ frontend (10.0.3.10).
-#   The DMZ LB hashes return traffic (SourceIP) to a NVA DMZ NIC (eth2).
-#   That NVA may not own the conntrack flow for the inbound direction → DROP.
-#   This is the asymmetric routing bug.
+#   This is what creates the asymmetric routing condition: when the webserver
+#   replies to App GW (its backend caller), the reply gets sent to the DMZ LB,
+#   which hashes (SourceIP on webserver IP) to a NVA eth2 backend. That NVA
+#   has no conntrack entry for the App-GW→webserver flow because App GW
+#   reaches the webserver DIRECTLY via VNet peering (no NVA on the way in)
+#   → INVALID → DROP. App GW backend health probe fails. Front LB then
+#   marks its NVA backends unhealthy because their probe (DNAT'd to App GW)
+#   also fails.
 #
-# AppGW subnet: route for the firewall VNet CIDR → back LB internal frontend
-#   (10.0.4.4). Forces App GW → webserver through NVA eth1 path.
+# AppGW subnet: NO UDR for the firewall VNet. App GW reaches the webserver
+#   directly via VNet peering. This is exactly what makes the routing
+#   asymmetric — the inbound App-GW-to-webserver leg bypasses the NVAs while
+#   the return leg goes through them.
 #
 # Internal subnet: empty route table (BGP propagation enabled, no overrides).
 # ---------------------------------------------------------------------------
 
-# DMZ default route → back LB DMZ frontend (webserver return path through NVAs)
+# DMZ default route → back LB DMZ frontend (asymmetric return path)
 resource "azurerm_route_table" "dmz" {
   name                = "rt-dmz"
   location            = azurerm_resource_group.lab.location
@@ -32,29 +39,7 @@ resource "azurerm_subnet_route_table_association" "dmz" {
   route_table_id = azurerm_route_table.dmz.id
 }
 
-# AppGW subnet route → back LB internal frontend (forces App GW → webserver via NVA eth1)
-# This route is in VNet 2 (appgw VNet) but the next hop (10.0.4.4) is reachable
-# via VNet peering with allow_forwarded_traffic = true.
-resource "azurerm_route_table" "appgw" {
-  name                = "rt-appgw"
-  location            = azurerm_resource_group.lab.location
-  resource_group_name = azurerm_resource_group.lab.name
-  tags                = var.tags
-
-  route {
-    name                   = "fw-vnet-via-internal-lb"
-    address_prefix         = var.vnet_address_space[0]
-    next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = var.internal_lb_frontend_ip
-  }
-}
-
-resource "azurerm_subnet_route_table_association" "appgw" {
-  subnet_id      = azurerm_subnet.appgw.id
-  route_table_id = azurerm_route_table.appgw.id
-}
-
-# Internal subnet: empty table, BGP propagation on (no forced routing overrides needed)
+# Internal subnet: empty table, BGP propagation on
 resource "azurerm_route_table" "internal" {
   name                          = "rt-internal"
   location                      = azurerm_resource_group.lab.location
