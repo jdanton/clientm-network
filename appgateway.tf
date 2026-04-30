@@ -188,9 +188,4 @@ resource "azurerm_application_gateway" "main" {
     backend_address_pool_name  = "bepool-webserver"
     backend_http_settings_name = "settings-webserver"
   }
-
-  # Don't fight with the user-defined route on the AppGW subnet during apply
-  depends_on = [
-    azurerm_subnet_route_table_association.appgw,
-  ]
 }

@@ -1,25 +1,45 @@
 # ---------------------------------------------------------------------------
-# User-defined routes (UDRs)
+# User-defined routes (UDRs) — Option B applied
+#
+# AppGW subnet: 10.0.0.0/16 → back LB internal frontend (10.0.4.4).
+#   Forces App-GW → webserver inbound through the NVAs (eth1 path), creating
+#   conntrack on the inbound NVA so the webserver's reply (which still goes
+#   via the DMZ LB) can match an existing flow IF the SourceIP hashes pick
+#   the same NVA on both legs. With only 2 NVAs, that's a coin-flip per
+#   distinct (AppGW_IP, webserver_IP) pair — fine for a deterministic test
+#   client; not a guaranteed fix.
 #
 # DMZ subnet: webserver's default route → back LB DMZ frontend (10.0.3.10).
-#   This is what creates the asymmetric routing condition: when the webserver
-#   replies to App GW (its backend caller), the reply gets sent to the DMZ LB,
-#   which hashes (SourceIP on webserver IP) to a NVA eth2 backend. That NVA
-#   has no conntrack entry for the App-GW→webserver flow because App GW
-#   reaches the webserver DIRECTLY via VNet peering (no NVA on the way in)
-#   → INVALID → DROP. App GW backend health probe fails. Front LB then
-#   marks its NVA backends unhealthy because their probe (DNAT'd to App GW)
-#   also fails.
+#   Webserver replies to App GW go to NVA eth2 via SourceIP hash on
+#   src=10.0.3.100. If that NVA matches the inbound NVA, ESTABLISHED hit and
+#   reverse-NAT works. If not, INVALID → DROP (the residual bug Option B
+#   doesn't solve on its own — would need eth2 SNAT to webserver, GWLB, or
+#   floating IP to fully eliminate).
 #
-# AppGW subnet: NO UDR for the firewall VNet. App GW reaches the webserver
-#   directly via VNet peering. This is exactly what makes the routing
-#   asymmetric — the inbound App-GW-to-webserver leg bypasses the NVAs while
-#   the return leg goes through them.
-#
-# Internal subnet: empty route table (BGP propagation enabled, no overrides).
+# Internal subnet: empty route table (BGP propagation on).
 # ---------------------------------------------------------------------------
 
-# DMZ default route → back LB DMZ frontend (asymmetric return path)
+# AppGW subnet UDR → forces App-GW→webserver through NVAs (Option B)
+resource "azurerm_route_table" "appgw" {
+  name                = "rt-appgw"
+  location            = azurerm_resource_group.lab.location
+  resource_group_name = azurerm_resource_group.lab.name
+  tags                = var.tags
+
+  route {
+    name                   = "fw-vnet-via-internal-lb"
+    address_prefix         = var.vnet_address_space[0]
+    next_hop_type          = "VirtualAppliance"
+    next_hop_in_ip_address = var.internal_lb_frontend_ip
+  }
+}
+
+resource "azurerm_subnet_route_table_association" "appgw" {
+  subnet_id      = azurerm_subnet.appgw.id
+  route_table_id = azurerm_route_table.appgw.id
+}
+
+# DMZ default route → back LB DMZ frontend
 resource "azurerm_route_table" "dmz" {
   name                = "rt-dmz"
   location            = azurerm_resource_group.lab.location

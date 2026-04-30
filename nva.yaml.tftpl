@@ -103,6 +103,10 @@ write_files:
       # Allow new inbound HTTPS flows destined for the App Gateway
       iptables -A FORWARD -p tcp --dport 443 -d $APPGW_PRIVATE_IP -m conntrack --ctstate NEW -j ACCEPT
 
+      # Allow new inbound HTTPS flows destined for the webserver
+      # (App-GW → webserver via back LB internal, after eth1 DNAT below)
+      iptables -A FORWARD -p tcp --dport 443 -d $WEBSERVER_IP -m conntrack --ctstate NEW -j ACCEPT
+
       # Allow new flows originating from App GW VNet (return path of App GW → NVA → client)
       iptables -A FORWARD -s $APPGW_CIDR -m conntrack --ctstate NEW -j ACCEPT
 
@@ -119,6 +123,15 @@ write_files:
       # The App GW is "NATed behind the firewalls" — clients hit the front LB,
       # NVAs DNAT to the App GW listener, App GW handles SSL/WAF/routing.
       iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 443 -j DNAT --to-destination $APPGW_PRIVATE_IP:443
+
+      # DNAT inbound 443 from back LB internal frontend → webserver. (Option B)
+      # AppGW subnet UDR sends App-GW→webserver traffic to back LB internal
+      # frontend (10.0.4.4). With enable_floating_ip=false (prod parity), the
+      # LB rewrites dst to NVA eth1 IP, which would normally hit the local
+      # INPUT chain. This DNAT rule kicks in first (PREROUTING precedes the
+      # routing decision), rewriting dst back to the webserver so the packet
+      # gets forwarded out eth2.
+      iptables -t nat -A PREROUTING -i eth1 -p tcp --dport 443 -j DNAT --to-destination $WEBSERVER_IP:443
 
       # SNAT outbound to App GW VNet on eth1.
       # Without this, App GW would see src=client_IP and reply via its own
