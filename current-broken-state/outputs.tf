@@ -44,7 +44,7 @@ output "webserver_ip" {
 
 output "test_commands" {
   description = "Useful one-liners for verifying the lab."
-  value = <<-EOT
+  value       = <<-EOT
     # SSH to NVA1 / NVA2
     ssh ${var.admin_username}@${azurerm_public_ip.nva["nva1"].ip_address}
     ssh ${var.admin_username}@${azurerm_public_ip.nva["nva2"].ip_address}

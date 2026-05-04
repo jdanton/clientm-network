@@ -1,28 +1,24 @@
 # ---------------------------------------------------------------------------
-# Network Virtual Appliances (Linux + iptables, simulating the Palo Altos)
+# Active/Active NVAs (Linux + iptables, simulating Palo Alto firewalls)
 #
-# 3 NICs each (matching production):
-#   - eth0 (external, snet-external)  — faces the front LB
-#   - eth1 (internal, snet-internal)  — faces the back LB internal frontend
-#   - eth2 (DMZ, snet-dmz)            — faces the back LB DMZ frontend
+# 2 NICs each:
+#   eth0 (trust, snet-trust)  — receives traffic from Internal LB
+#   eth1 (dmz,   snet-dmz)    — forwards to webserver (with SNAT for symmetric return)
 #
-# eth2 is the key addition: webserver return traffic arrives here via the
-# back LB DMZ frontend (10.0.3.10), reproducing the asymmetric routing
-# condition when the returning NVA has no conntrack entry for the flow.
+# Linux assigns NICs to eth0/eth1 in PCI/MAC order, NOT Terraform list
+# order — the cloud-init detects which interface is which by subnet.
 # ---------------------------------------------------------------------------
 
 locals {
   nva_cloud_init = templatefile("${path.module}/nva.yaml.tftpl", {
-    webserver_ip     = var.webserver_ip
-    appgw_private_ip = var.appgw_private_ip
-    external_cidr    = var.subnet_external_cidr
-    internal_cidr    = var.subnet_internal_cidr
-    dmz_cidr         = var.subnet_dmz_cidr
-    appgw_cidr       = var.vnet_appgw_address_space[0]
+    webserver_ip      = var.webserver_ip
+    trust_cidr        = var.subnet_trust_cidr
+    dmz_cidr          = var.subnet_dmz_cidr
+    appgw_subnet_cidr = var.subnet_appgw_cidr
   })
 }
 
-# Public IPs for management SSH
+# Public IPs for NVA management SSH
 resource "azurerm_public_ip" "nva" {
   for_each            = toset(["nva1", "nva2"])
   name                = "pip-${each.key}"
@@ -34,21 +30,21 @@ resource "azurerm_public_ip" "nva" {
   tags                = var.tags
 }
 
-# External NICs (eth0) — face the front LB
-resource "azurerm_network_interface" "nva_external" {
+# Trust NICs (eth0 logical) — Internal LB pool members
+resource "azurerm_network_interface" "nva_trust" {
   for_each = {
-    nva1 = var.nva1_external_ip
-    nva2 = var.nva2_external_ip
+    nva1 = var.nva1_trust_ip
+    nva2 = var.nva2_trust_ip
   }
-  name                  = "nic-${each.key}-ext"
+  name                  = "nic-${each.key}-trust"
   location              = azurerm_resource_group.lab.location
   resource_group_name   = azurerm_resource_group.lab.name
   ip_forwarding_enabled = true
   tags                  = var.tags
 
   ip_configuration {
-    name                          = "ipconfig-ext"
-    subnet_id                     = azurerm_subnet.external.id
+    name                          = "ipconfig-trust"
+    subnet_id                     = azurerm_subnet.trust.id
     private_ip_address_allocation = "Static"
     private_ip_address            = each.value
     public_ip_address_id          = azurerm_public_ip.nva[each.key].id
@@ -56,29 +52,7 @@ resource "azurerm_network_interface" "nva_external" {
   }
 }
 
-# Internal NICs (eth1) — face the back LB internal frontend (10.0.4.4)
-resource "azurerm_network_interface" "nva_internal" {
-  for_each = {
-    nva1 = var.nva1_internal_ip
-    nva2 = var.nva2_internal_ip
-  }
-  name                  = "nic-${each.key}-int"
-  location              = azurerm_resource_group.lab.location
-  resource_group_name   = azurerm_resource_group.lab.name
-  ip_forwarding_enabled = true
-  tags                  = var.tags
-
-  ip_configuration {
-    name                          = "ipconfig-int"
-    subnet_id                     = azurerm_subnet.internal.id
-    private_ip_address_allocation = "Static"
-    private_ip_address            = each.value
-  }
-}
-
-# DMZ NICs (eth2) — face the back LB DMZ frontend (10.0.3.10)
-# Return traffic from the webserver arrives here. The asymmetric routing bug
-# manifests when this NVA has no conntrack entry for the inbound flow.
+# DMZ NICs (eth1 logical) — face the webserver
 resource "azurerm_network_interface" "nva_dmz" {
   for_each = {
     nva1 = var.nva1_dmz_ip
@@ -98,7 +72,6 @@ resource "azurerm_network_interface" "nva_dmz" {
   }
 }
 
-# NVA VMs
 resource "azurerm_linux_virtual_machine" "nva" {
   for_each            = toset(["nva1", "nva2"])
   name                = "vm-${each.key}"
@@ -108,8 +81,7 @@ resource "azurerm_linux_virtual_machine" "nva" {
   admin_username      = var.admin_username
   zone                = "2"
   network_interface_ids = [
-    azurerm_network_interface.nva_external[each.key].id,
-    azurerm_network_interface.nva_internal[each.key].id,
+    azurerm_network_interface.nva_trust[each.key].id,
     azurerm_network_interface.nva_dmz[each.key].id,
   ]
   tags = var.tags

@@ -1,0 +1,84 @@
+#cloud-config
+# ============================================================================
+# Webserver: nginx serving /healthz and /whoami.
+#
+# /whoami exposes X-Forwarded-For so you can verify the client IP propagates
+# through App Gateway → Internal LB → NVA → here. App GW v2 automatically
+# adds X-Forwarded-For with the original client IP, even though the NVA
+# SNATs the source on its DMZ egress (which is why nginx will see
+# remote_addr = NVA's DMZ IP, but X-Forwarded-For = original client).
+# ============================================================================
+package_update: true
+package_upgrade: false
+packages:
+  - nginx
+  - openssl
+  - tcpdump
+  - net-tools
+
+write_files:
+  - path: /etc/nginx/sites-available/default
+    permissions: '0644'
+    content: |
+      log_format with_xff '$remote_addr - $remote_user [$time_local] '
+                          '"$request" $status $body_bytes_sent '
+                          '"$http_referer" "$http_user_agent" '
+                          'xff="$http_x_forwarded_for" '
+                          'xfp="$http_x_forwarded_proto"';
+
+      server {
+        listen 80 default_server;
+        listen 443 ssl default_server;
+
+        server_name connect.clientmworkspace.com _;
+
+        ssl_certificate     /etc/ssl/certs/webserver-selfsigned.crt;
+        ssl_certificate_key /etc/ssl/private/webserver-selfsigned.key;
+
+        access_log /var/log/nginx/access.log with_xff;
+
+        root /var/www/html;
+        index index.html;
+
+        location /healthz {
+          access_log off;
+          add_header Content-Type text/plain;
+          return 200 'OK\n';
+        }
+
+        location /whoami {
+          access_log off;
+          default_type text/plain;
+          return 200 "host: $host\nremote_addr: $remote_addr\nx-forwarded-for: $http_x_forwarded_for\nx-forwarded-proto: $http_x_forwarded_proto\nx-forwarded-port: $http_x_forwarded_port\nx-original-host: $http_x_original_host\n";
+        }
+
+        location / {
+          try_files $uri $uri/ =404;
+        }
+      }
+
+  - path: /var/www/html/index.html
+    permissions: '0644'
+    content: |
+      <!DOCTYPE html>
+      <html>
+      <head><title>Clientm Lab Webserver</title></head>
+      <body style="font-family: monospace; padding: 2em;">
+        <h1>Clientm Lab Webserver</h1>
+        <p>Path: Internet → App Gateway → Internal LB → NVA → here.</p>
+        <p>Try <a href="/healthz">/healthz</a> or <a href="/whoami">/whoami</a>.</p>
+      </body>
+      </html>
+
+runcmd:
+  - |
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+      -keyout /etc/ssl/private/webserver-selfsigned.key \
+      -out /etc/ssl/certs/webserver-selfsigned.crt \
+      -subj "/CN=connect.clientmworkspace.com" \
+      -addext "subjectAltName=DNS:connect.clientmworkspace.com"
+  - chmod 600 /etc/ssl/private/webserver-selfsigned.key
+  - systemctl enable nginx
+  - systemctl restart nginx
+
+final_message: "Webserver bootstrap complete. nginx serving /healthz and /whoami on 80 + 443."
