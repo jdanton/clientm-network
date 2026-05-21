@@ -65,3 +65,45 @@ The original (broken) design had a route table forcing webserver egress through 
 | **Active/standby NVA pair** | Single NVA owns all flows; partner takes over on failure | Eliminates the hashing problem entirely. Gives up half your throughput. Closest to traditional Palo Alto HA. |
 
 A follow-on engagement should pick one and scope it.
+
+## Why those three options actually work
+
+All three close the egress gap, but they fix the underlying asymmetric-routing problem in fundamentally different ways. The general rule is:
+
+> **Asymmetric routing is only a problem when you have independent stateful devices that can't see each other's flows.**
+
+Each option attacks one part of that sentence.
+
+### Where the problem comes from
+
+Two independent stateful firewalls (a Palo Alto pair, or our Linux NVAs running iptables) each maintain their own private connection-tracking table. Put them behind a Standard Load Balancer and:
+
+- LB hashes inbound on the 5-tuple → lands on **NVA A** → NVA A's conntrack records the flow
+- LB hashes the return packet on a *different* 5-tuple (the webserver's reply has different source IP+port) → lands on **NVA B**
+- NVA B has no record of that conversation → drops it as INVALID
+
+The hashing isn't the bug. The bug is that **the two NVAs can't see each other's state.**
+
+### Azure Firewall — make the devices see each other
+
+- Underneath, Azure Firewall is a horizontally-scaled cluster of instances on a Microsoft-managed scale unit.
+- Those instances **share session state** via an internal synchronization mechanism that Microsoft does not expose.
+- From the customer's view there's a single private IP. UDRs point at *that one IP*, not at a load balancer in front of multiple firewalls.
+- Any instance can handle return traffic for a flow another instance opened, because they all see the same conntrack.
+
+Same flow, different instance on return → still finds the state → doesn't drop.
+
+### Gateway Load Balancer — make the LB stop spreading flows
+
+- GWLB uses **GENEVE encapsulation**: each packet is tagged with a flow identifier the LB can read.
+- The GWLB uses that tag to **deterministically pin both directions of a flow to the same NVA**.
+- Independent state tables on the NVAs stay fine, because the same NVA always sees both halves of every conversation.
+
+This is the Azure-recommended LB type for NVAs precisely because it solves this problem natively.
+
+### Active/standby — remove the second device
+
+- Only one NVA is ever in the data path at a time. The partner takes over on failure.
+- Trivially symmetric — there is no "other firewall" for traffic to land on by mistake.
+- Closest pattern to how a traditional Palo Alto HA pair runs on-prem.
+- Tradeoff: you pay for two firewalls and use the throughput of one.
