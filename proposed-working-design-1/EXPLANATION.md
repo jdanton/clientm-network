@@ -99,7 +99,9 @@ Same flow, different instance on return → still finds the state → doesn't dr
 - The GWLB uses that tag to **deterministically pin both directions of a flow to the same NVA**.
 - Independent state tables on the NVAs stay fine, because the same NVA always sees both halves of every conversation.
 
-This is the Azure-recommended LB type for NVAs precisely because it solves this problem natively.
+This is the Azure-recommended LB type for NVAs precisely because it solves this problem natively, but..
+
+Gateway Load Balancer is the right tool for inline NVA insertion in an NVA first topology. However, since App Gateway v2 does not currently support GWLB chaining on its frontend IP, it cannot be used to resolve the asymmetry in your current design. 
 
 ### Active/standby — remove the second device
 
