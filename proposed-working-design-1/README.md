@@ -68,6 +68,33 @@ A Palo Alto in this position would do the same — reference XFF for any
 client-IP-based policy rather than relying on the L3 source IP (which will be
 the NVA's DMZ IP after SNAT).
 
+## Known limitations — webserver egress is NOT firewalled
+
+This design fixes the **inbound** asymmetric-routing problem. Webserver-
+initiated **outbound** connections (apt updates, outbound API calls, anything
+the webserver originates to the Internet) bypass the NVAs entirely via Azure's
+default Internet path — there is no UDR on the DMZ subnet forcing egress
+through the firewall pair.
+
+The previous (broken) design did force webserver egress through the firewalls
+(see [`../current-broken-state/route-tables.tf`](../current-broken-state/route-tables.tf)).
+We dropped that on purpose: re-adding a `0.0.0.0/0 → Internal LB → NVA` route
+on the DMZ subnet recreates the **same asymmetric-routing failure** we just
+solved, only on the egress leg — the LB would hash webserver-originated flows
+to one NVA, return traffic could land on the other, stateful inspection fails.
+
+If egress inspection (DLP, C2 detection, allow-listed outbound) is a real
+requirement, this design is incomplete. Options for a follow-on design:
+
+| Option | What changes | Tradeoff |
+|---|---|---|
+| Azure Firewall (PaaS) for egress | Managed Azure Firewall + UDR webserver egress to it | Simplest ops. ~$900/mo extra. Separate product from inbound NVAs. |
+| Gateway Load Balancer for the NVA pair | Replace Standard LB with GWLB | Azure-recommended LB type for NVAs; native symmetric flows both directions. Needs GENEVE-aware NVA cloud-init. |
+| Active/standby NVA pair | One NVA owns all flows; partner takes over on failure | Eliminates hashing problem entirely. Half the throughput. Closest to traditional Palo Alto HA. |
+
+See [EXPLANATION.md](EXPLANATION.md) for the client-facing write-up of this
+limitation.
+
 ## Cost (US East, 24/7)
 
 | Resource | ~$/mo |
@@ -133,4 +160,5 @@ terraform destroy
 | `webserver.yaml.tftpl` | nginx + self-signed cert |
 | `outputs.tf` | Useful IPs and test one-liners |
 | `VERIFIED.md` | Record of what's been tested end-to-end on the live deployment |
+| `EXPLANATION.md` | Client-facing write-up of the routing fix + the egress limitation |
 | `../current-broken-state/` | The previous (non-working) "App GW behind firewalls" attempt |
