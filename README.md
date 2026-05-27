@@ -12,6 +12,23 @@ in front of an active/active NVA pair, protecting a backend webserver."
 | [`proposed-working-design-3/`](proposed-working-design-3/) | **Alternative to design-2.** Drops the NVA pair *and* the Internal LB; one **Azure Firewall** inspects **both** inbound (App GW → firewall → webserver) and egress. Fewer moving parts, retires Palo Alto, but gives up the Palo Alto feature set. ~$1,272/mo. **Deployed and verified end-to-end (7/7)** — see [VERIFIED.md](proposed-working-design-3/VERIFIED.md). |
 | [`current-broken-state/`](current-broken-state/) | Earlier attempt (App GW NATed *behind* the firewalls) that hit the asymmetric-return-path problem. Archived for reference; do not deploy. |
 
+## Cost at a glance (US East, 24/7)
+
+Estimates, idle lab. Each design's README has the full line-item breakdown.
+
+| Design | What it adds | Egress firewalled? | ~$/mo |
+|---|---|---|---|
+| [design-1](proposed-working-design-1/README.md#cost-us-east-247) | App GW WAF + NVA pair + Internal LB | no | **~$444** |
+| [design-2](proposed-working-design-2/README.md#cost-us-east-247) | design-1 **+ Azure Firewall** (egress only) | yes | **~$1,360** |
+| [design-3](proposed-working-design-3/README.md#cost-us-east-247) | NVAs/LB **replaced by Azure Firewall** (both directions) | yes | **~$1,272** |
+
+The Azure Firewall (~$912/mo, Standard) dominates designs 2 and 3 and **bills by
+the hour whether or not traffic flows** (~$30/day idle). design-3 is only ~$90/mo
+cheaper than design-2 on the Azure bill — its real advantage is operational
+(one firewall product, one VM) plus retiring the client's Palo Alto licensing,
+which is off this bill. **`terraform destroy` between sessions**, and note that a
+deployed design-2 *and* design-3 together run two firewalls (~$912/mo each).
+
 ## Quick start
 
 ```bash
