@@ -56,8 +56,8 @@ output "test_commands" {
     # The webserver has no public IP; jump through an NVA to reach it.
     ssh -J azureuser@${azurerm_public_ip.nva["nva1"].ip_address} azureuser@${var.webserver_ip}
 
-    # On the webserver: an ALLOWED FQDN egresses, SNATed to the firewall IP...
-    curl -s https://azure.archive.ubuntu.com/ -o /dev/null -w '%%{http_code}\n'
+    # On the webserver: an ALLOWED FQDN egresses (apt mirrors are HTTP, port 80)...
+    curl -s http://azure.archive.ubuntu.com/ -o /dev/null -w '%%{http_code}\n'   # expect 200
     # ...and the source IP the Internet sees is the firewall public IP:
     curl -s https://api.ipify.org ; echo      # expect ${azurerm_public_ip.firewall.ip_address}
     # A NON-allow-listed FQDN is blocked by the firewall application rule:

@@ -8,7 +8,8 @@ in front of an active/active NVA pair, protecting a backend webserver."
 | Folder | What's in it |
 |---|---|
 | [`proposed-working-design-1/`](proposed-working-design-1/) | **Current design.** App GW WAF_v2 → Internal LB → 2× active/active Linux NVAs → webserver, all in a single VNet. `/healthz` end-to-end test verified — see [VERIFIED.md](proposed-working-design-1/VERIFIED.md). Inbound only; webserver egress is not firewalled. |
-| [`proposed-working-design-2/`](proposed-working-design-2/) | design-1 **plus an Azure Firewall** for the webserver's outbound traffic, closing design-1's egress gap. Inbound is unchanged; a DMZ `0.0.0.0/0` UDR sends egress through the firewall. Adds ~$912/mo. Validates clean but **not yet deployed** — see [VERIFIED.md](proposed-working-design-2/VERIFIED.md). |
+| [`proposed-working-design-2/`](proposed-working-design-2/) | design-1 **plus an Azure Firewall** for the webserver's outbound traffic, closing design-1's egress gap. Inbound is unchanged (keeps the NVA pair); a DMZ `0.0.0.0/0` UDR sends egress through the firewall. ~$1,360/mo. **Deployed and verified end-to-end (7/7)** — see [VERIFIED.md](proposed-working-design-2/VERIFIED.md). |
+| [`proposed-working-design-3/`](proposed-working-design-3/) | **Alternative to design-2.** Drops the NVA pair *and* the Internal LB; one **Azure Firewall** inspects **both** inbound (App GW → firewall → webserver) and egress. Fewer moving parts, retires Palo Alto, but gives up the Palo Alto feature set. ~$1,272/mo. **Deployed and verified end-to-end (7/7)** — see [VERIFIED.md](proposed-working-design-3/VERIFIED.md). |
 | [`current-broken-state/`](current-broken-state/) | Earlier attempt (App GW NATed *behind* the firewalls) that hit the asymmetric-return-path problem. Archived for reference; do not deploy. |
 
 ## Quick start
@@ -29,3 +30,17 @@ The App Gateway alone runs ~$320/mo, so run `terraform destroy` between
 sessions. design-2 adds an Azure Firewall (~$912/mo on top), so destroying it
 between sessions matters even more there — see
 [`proposed-working-design-2/README.md`](proposed-working-design-2/README.md).
+
+## Validating traffic flows (design-2 / design-3)
+
+[`validate-flows.sh`](validate-flows.sh) is a read-only checker that probes a
+deployed design and asserts the inbound path, X-Forwarded-For preservation, the
+egress SNAT through Azure Firewall, and the egress allow-list deny. It
+auto-detects which design it's pointed at:
+
+```bash
+./validate-flows.sh proposed-working-design-2
+./validate-flows.sh proposed-working-design-3
+```
+
+It uses `~/.ssh/clientm-lab` if present and exits non-zero if any check fails.

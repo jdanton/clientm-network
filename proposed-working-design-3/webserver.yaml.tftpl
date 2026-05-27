@@ -3,15 +3,17 @@
 # Webserver: nginx serving /healthz and /whoami.
 #
 # /whoami exposes X-Forwarded-For so you can verify the client IP propagates
-# through App Gateway → Internal LB → NVA → here. App GW v2 automatically
-# adds X-Forwarded-For with the original client IP, even though the NVA
-# SNATs the source on its DMZ egress (which is why nginx will see
-# remote_addr = NVA's DMZ IP, but X-Forwarded-For = original client).
-# ============================================================================
+# through App Gateway → Azure Firewall → here. App GW v2 adds X-Forwarded-For
+# with the original client IP; the firewall does not SNAT private traffic, so
+# nginx sees remote_addr = the App Gateway subnet IP and X-Forwarded-For = the
+# original client.
+#
 # Packages are installed in runcmd with a RETRY LOOP rather than the cloud-init
-# `packages:` directive: the webserver's egress transits Azure Firewall, whose
-# rule collection can still be propagating at first boot — a one-shot apt would
-# get denied (HTTP 470) and fail cloud-init permanently. The loop waits it out.
+# `packages:` directive. The webserver's egress transits Azure Firewall, whose
+# rule collection can still be propagating at first boot — a one-shot apt gets
+# denied (HTTP 470) and fails cloud-init permanently (nginx never installs).
+# The loop waits the propagation window out.
+# ============================================================================
 package_upgrade: false
 
 write_files:

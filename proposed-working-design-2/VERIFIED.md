@@ -1,56 +1,62 @@
 # Verification Log
 
-## Status: NOT yet deployed
+## 2026-05-27 — deployed and verified end-to-end (7/7)
 
-This design has **not** been applied to Azure or tested end-to-end. What has
-been done:
+design-2 was applied to Azure and `validate-flows.sh` passed every check.
 
-- `terraform fmt` clean.
-- `terraform validate` passes (config is internally consistent; provider is
-  azurerm `~> 4.0`).
+### Deployed outputs
 
-The inbound half is byte-for-byte the verified design-1 path, so it carries
-design-1's [VERIFIED.md](../proposed-working-design-1/VERIFIED.md) confidence.
-The **egress half (Azure Firewall + DMZ UDR) is new and unverified.**
+```
+appgw_public_ip     = 172.214.122.55
+firewall_public_ip  = 20.75.153.29
+firewall_private_ip = 10.0.4.4
+webserver_ip        = 10.0.3.100
+nva1_public_ip      = 40.90.232.161
+```
 
-## To verify after `terraform apply`
+### Results — `./validate-flows.sh proposed-working-design-2`
 
-1. **Inbound still works** (regression check that the egress UDR didn't break
-   the return path):
-   ```
-   APPGW=$(terraform output -raw appgw_public_ip)
-   curl -kv --resolve connect.clientmworkspace.com:443:$APPGW \
-     https://connect.clientmworkspace.com/healthz        # expect 200 OK
-   ```
+| Check | Result |
+|---|---|
+| Inbound `/healthz` via App GW | **200 OK** |
+| `/whoami` `remote_addr` | `10.0.3.20` — NVA DMZ IP (inbound traversed an NVA + SNAT) |
+| `/whoami` `x-forwarded-for` | `73.141.144.228` — real client IP preserved end to end |
+| Webserver reachable (ProxyJump via NVA1) | OK |
+| Egress SNAT (`api.ipify.org`) | `20.75.153.29` == firewall public IP — **egress goes through Azure Firewall** |
+| Allow-listed FQDN (`http://azure.archive.ubuntu.com/`) | HTTP 200 — application rule permits it |
+| Non-allow-listed FQDN (`https://example.com/`) | blocked (000) — egress allow-list enforcing |
 
-2. **Allowed egress is SNATed through the firewall.** Jump to the webserver via
-   an NVA and confirm the source IP the Internet sees is the firewall's public
-   IP:
-   ```
-   ssh -J azureuser@$(terraform output -raw nva1_public_ip) azureuser@10.0.3.100
-   curl -s https://api.ipify.org ; echo
-   #   expect == terraform output -raw firewall_public_ip
-   ```
+**What this proves:** the inbound path is the verified design-1 path (App GW →
+Internal LB → NVA → webserver, symmetric via NVA SNAT, XFF preserved), AND the
+new egress leg works as designed — the webserver's outbound traffic is forced
+through Azure Firewall, SNATed to the firewall's public IP, and filtered against
+the FQDN allow-list. The egress gap design-1 documented is closed.
 
-3. **Disallowed egress is blocked.** From the webserver, a FQDN not on the
-   allow-list should fail:
-   ```
-   curl -s --max-time 10 https://example.com/    # expect timeout / connection refused
-   ```
+### Notes / gotchas found during verification
 
-4. **apt still works** through the firewall (allow-list includes Ubuntu repos):
-   ```
-   sudo apt-get update                            # expect success
-   ```
+- **Ubuntu archive mirrors are HTTP-only (port 80), not TLS on 443.** An
+  `https://azure.archive.ubuntu.com/` probe returns 000 (the mirror doesn't
+  speak TLS) even though the firewall permits it — use HTTP for that check. The
+  HTTPS allow path is proven separately by `api.ipify.org`.
+- `validate-flows.sh` reaches the webserver via `ProxyCommand` (not `ssh -J`)
+  so the non-interactive SSH options apply to the jump hop too; `-J` blocked on
+  a host-key prompt on this OpenSSH build.
 
-## Known risks to watch for on first deploy
+## Post-verification hardening (cloud-init drift)
 
-- **DNS:** the webserver resolves names via Azure DNS (168.63.129.16) over the
-  platform route, which does not transit the firewall, so FQDN app-rules should
-  work. If name resolution is reconfigured to an external resolver, add/confirm
-  the `dns` network rule covers it.
-- **Provisioning time:** Azure Firewall takes ~10–15 min to deploy; the route
-  table association depends on the firewall's private IP, so a cold `apply`
-  serializes on it.
-- **NVA management egress unaffected:** NVAs route their own Internet traffic out
-  the trust NIC, not the DMZ, so the new DMZ UDR does not touch NVA updates.
+After design-3 hit a first-boot race (cloud-init's one-shot `apt` denied with
+HTTP 470 while the Azure Firewall rules were still propagating), the same fix was
+applied here proactively — design-2's webserver won that race by luck, not
+design. `webserver.yaml.tftpl` now installs packages in a `runcmd` retry loop and
+`webserver.tf` gained a `depends_on` (firewall rule collection + DMZ route
+association). **This changes the webserver's cloud-init**, so `terraform plan`
+will show the (already-verified, currently-running) webserver wants replacement.
+A future `apply` rebuilds it and it self-heals; the live box is unaffected until
+then.
+
+## Still to verify (optional)
+
+- NVA failover — drop one NVA, confirm `/healthz` stays green via the other and
+  egress is unaffected (egress doesn't depend on the NVAs).
+- Firewall logs — wire a Log Analytics workspace + diagnostic settings to see
+  the denied `example.com` egress in the Application-rule logs.

@@ -148,6 +148,14 @@ Allowed egress is SNATed to `terraform output -raw firewall_public_ip`; denied
 egress shows up in the firewall's Application-rule logs (enable a Log Analytics
 workspace + diagnostic settings to see them — not wired up in this lab).
 
+Or run the automated flow validator from the repo root (read-only — it asserts
+the inbound path, XFF preservation, egress SNAT, and the allow-list deny):
+
+```bash
+../validate-flows.sh .          # from this directory, or:
+./validate-flows.sh proposed-working-design-2   # from the repo root
+```
+
 ## Tear down
 
 ```bash

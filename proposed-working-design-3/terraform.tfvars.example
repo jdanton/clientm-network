@@ -1,0 +1,14 @@
+# Copy to terraform.tfvars and fill in.
+
+# Your SSH public key (paste contents of ~/.ssh/<key>.pub)
+ssh_public_key = "ssh-ed25519 AAAA... your-key-here"
+
+# Your public IP /32 (curl ifconfig.me) — source-restricts the firewall DNAT
+# rule that publishes SSH to the webserver (ssh azureuser@<firewall_public_ip>)
+allowed_ssh_cidr = "1.2.3.4/32"
+
+# Optional overrides
+# location            = "eastus"
+# resource_group_name = "rg-clientm-lab-d3"
+# vm_size             = "Standard_B2s"
+# firewall_sku_tier   = "Standard"

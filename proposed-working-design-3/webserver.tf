@@ -1,8 +1,11 @@
 # ---------------------------------------------------------------------------
-# DMZ webserver — nginx with /healthz and /whoami (shows X-Forwarded-For).
-# Reached via NVA DMZ NIC. NVA SNATs on its DMZ egress so this webserver
-# only ever sees connections from the NVA's DMZ IP — no need to know
-# anything about the LB or App GW.
+# Web subnet webserver — nginx with /healthz and /whoami (shows X-Forwarded-For).
+#
+# No NVA in front of it anymore. Inbound arrives via App GW → Azure Firewall;
+# since the firewall does not SNAT private traffic, nginx sees remote_addr =
+# the App Gateway instance's private IP (10.0.1.x) and X-Forwarded-For = the
+# original client IP (added by App GW). No public IP — management SSH is
+# published through the firewall DNAT rule (see firewall.tf).
 # ---------------------------------------------------------------------------
 
 locals {
@@ -16,8 +19,8 @@ resource "azurerm_network_interface" "webserver" {
   tags                = var.tags
 
   ip_configuration {
-    name                          = "ipconfig-dmz"
-    subnet_id                     = azurerm_subnet.dmz.id
+    name                          = "ipconfig-web"
+    subnet_id                     = azurerm_subnet.web.id
     private_ip_address_allocation = "Static"
     private_ip_address            = var.webserver_ip
   }
@@ -34,13 +37,13 @@ resource "azurerm_linux_virtual_machine" "webserver" {
   tags                  = var.tags
 
   # Boot the webserver only after the egress path is in place — the firewall
-  # rule collection (allows the apt FQDNs) and the DMZ route table
+  # rule collection (allows the apt FQDNs) and the web subnet's route table
   # (0.0.0.0/0 → firewall). Combined with the apt retry loop in cloud-init,
   # this avoids the first-boot race where apt egress is denied before the
   # firewall rules have propagated.
   depends_on = [
-    azurerm_firewall_policy_rule_collection_group.egress,
-    azurerm_subnet_route_table_association.dmz_egress,
+    azurerm_firewall_policy_rule_collection_group.main,
+    azurerm_subnet_route_table_association.web,
   ]
 
   custom_data = base64encode(local.webserver_cloud_init)
