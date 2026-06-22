@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# validate-flows.sh — verify the traffic flows for design-2 / design-3 / design-4.
+# validate-flows.sh — verify the traffic flows for design-2 / 3 / 4 / 5.
 #
 # Read-only: it only sends curl/ssh probes, it changes nothing. Auto-detects
 # which design it is pointed at from the Terraform outputs:
@@ -21,11 +21,17 @@
 #       webserver reached via ProxyJump through the NVA. L4 egress allow-list
 #       (the "deny" probe targets a non-allow-listed port, not an FQDN).
 #
+#   design-5  (firewall_public_ip + singular nva_public_ip):
+#       inbound  : client → App GW → NVA trust → DNAT → NVA dmz → webserver
+#       egress   : webserver → snet-dmz UDR → Azure Firewall → Internet
+#       webserver reached via ProxyJump through the NVA. FQDN egress allow-list.
+#
 # Usage:
 #   ./validate-flows.sh                         # use Terraform state in $PWD
 #   ./validate-flows.sh proposed-working-design-2
 #   ./validate-flows.sh proposed-working-design-3
 #   ./validate-flows.sh proposed-working-design-4
+#   ./validate-flows.sh proposed-working-design-5
 #
 # Requirements: terraform, curl, ssh. Uses ~/.ssh/clientm-lab if present.
 # Exit code is non-zero if any check fails.
@@ -77,6 +83,11 @@ if [[ -n "${FW_PUBLIC:-}" && -n "${NVA1_IP:-}" ]]; then
   EGRESS_PIP="$FW_PUBLIC"; EGRESS_LABEL="Azure Firewall public IP"
   JUMP_IP="$NVA1_IP"; JUMP_LABEL="ProxyJump via NVA1"
   log "Detected: design-2 (NVA pair inbound, Azure Firewall egress)"
+elif [[ -n "${FW_PUBLIC:-}" && -n "${NVA_IP:-}" ]]; then
+  MODE=5; EXPECT_REMOTE_PREFIX="10.0.3."   # NVA DMZ IP after SNAT (.10)
+  EGRESS_PIP="$FW_PUBLIC"; EGRESS_LABEL="Azure Firewall public IP"
+  JUMP_IP="$NVA_IP"; JUMP_LABEL="ProxyJump via NVA"
+  log "Detected: design-5 (single 3-NIC NVA inbound, Azure Firewall egress)"
 elif [[ -n "${FW_PUBLIC:-}" ]]; then
   MODE=3; EXPECT_REMOTE_PREFIX="10.0.1."   # App GW subnet IP (firewall doesn't SNAT private)
   EGRESS_PIP="$FW_PUBLIC"; EGRESS_LABEL="Azure Firewall public IP"
@@ -93,14 +104,11 @@ else
 fi
 
 log "App Gateway public IP : ${APPGW_IP}"
-if [[ $MODE == 4 ]]; then
-  log "NVA public IP         : ${NVA_IP}"
-else
-  log "Firewall public IP    : ${FW_PUBLIC}"
-  log "Firewall private IP   : ${FW_PRIVATE:-<n/a>}"
-fi
+[[ -n "${NVA_IP:-}" ]]     && log "NVA public IP         : ${NVA_IP}"
+[[ $MODE == 2 ]]           && log "NVA1 public IP        : ${NVA1_IP}"
+[[ -n "${FW_PUBLIC:-}" ]]  && log "Firewall public IP    : ${FW_PUBLIC}"
+[[ -n "${FW_PRIVATE:-}" ]] && log "Firewall private IP   : ${FW_PRIVATE}"
 log "Webserver private IP  : ${WEBSERVER_IP}"
-[[ $MODE == 2 ]] && log "NVA1 public IP        : ${NVA1_IP}"
 
 # ── ssh plumbing ────────────────────────────────────────────────────────────────
 SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 -o BatchMode=yes -o LogLevel=ERROR"
@@ -140,6 +148,7 @@ else
     2) info "design-2: check Internal LB backend health + NVA firewall service" ;;
     3) info "design-3: check App GW backend health + the inbound-web firewall rule / App GW UDR" ;;
     4) info "design-4: check App GW backend health + NVA firewall service ('ssh azureuser@$NVA_IP sudo nva-trace')" ;;
+    5) info "design-5: check App GW backend health + NVA firewall service ('ssh azureuser@$NVA_IP sudo nva-trace')" ;;
   esac
 fi
 
@@ -182,7 +191,7 @@ else
   case $MODE in
     2) info "design-2: confirm NVA1 ($NVA1_IP) is reachable and allowed_ssh_cidr matches your IP" ;;
     3) info "design-3: confirm the mgmt-dnat rule + that allowed_ssh_cidr matches your current IP ($(curl -s https://api.ipify.org || echo '?'))" ;;
-    4) info "design-4: confirm the NVA ($NVA_IP) is reachable and allowed_ssh_cidr matches your IP" ;;
+    4|5) info "design-$MODE: confirm the NVA ($NVA_IP) is reachable and allowed_ssh_cidr matches your IP" ;;
   esac
   section "Result"; echo "PASS: $PASS_N   FAIL: $FAIL_N"; exit $(( FAIL_N > 0 ? 1 : 0 ))
 fi
@@ -242,6 +251,8 @@ case $MODE in
      echo "  Egress  : webserver → Azure Firewall (SNAT ${EGRESS_PIP}) → Internet, FQDN allow-listed" ;;
   4) echo "  Inbound : client → App GW WAF → NVA trust → DNAT → webserver"
      echo "  Egress  : webserver → NVA dmz → MASQUERADE (SNAT ${EGRESS_PIP}) → Internet, L4 port allow-listed" ;;
+  5) echo "  Inbound : client → App GW WAF → NVA trust → DNAT → webserver"
+     echo "  Egress  : webserver → Azure Firewall (SNAT ${EGRESS_PIP}) → Internet, FQDN allow-listed" ;;
 esac
 echo ""
 exit $(( FAIL_N > 0 ? 1 : 0 ))
