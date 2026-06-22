@@ -80,6 +80,12 @@ runcmd:
       sleep 20
     done
   - |
+    # When cloud-init's write_files placed sites-available/default BEFORE
+    # nginx-common was installed, dpkg skips creating the usual sites-enabled
+    # symlink — nginx then runs but is bound to no sites and serves nothing.
+    # Recreate the symlink explicitly (idempotent).
+    ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+  - |
     openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
       -keyout /etc/ssl/private/webserver-selfsigned.key \
       -out /etc/ssl/certs/webserver-selfsigned.crt \

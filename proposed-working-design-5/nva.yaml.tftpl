@@ -145,8 +145,13 @@ write_files:
 
       # Egress SNAT on UNTRUST NIC: anything leaving to non-RFC1918 destinations
       # gets rewritten to the untrust IP, then Azure SNATs to the public IP.
-      iptables -t nat -A POSTROUTING -o "$UNTRUST_IF" \
-        ! -d 10.0.0.0/8 ! -d 172.16.0.0/12 ! -d 192.168.0.0/16 -j MASQUERADE
+      # NB: modern iptables (nf_tables backend) rejects multiple -d flags in one
+      # rule, so we exempt RFC1918 destinations with RETURN rules and then
+      # MASQUERADE everything else.
+      iptables -t nat -A POSTROUTING -o "$UNTRUST_IF" -d 10.0.0.0/8     -j RETURN
+      iptables -t nat -A POSTROUTING -o "$UNTRUST_IF" -d 172.16.0.0/12  -j RETURN
+      iptables -t nat -A POSTROUTING -o "$UNTRUST_IF" -d 192.168.0.0/16 -j RETURN
+      iptables -t nat -A POSTROUTING -o "$UNTRUST_IF" -j MASQUERADE
 
       netfilter-persistent save
       logger -t nva-firewall "rules applied"

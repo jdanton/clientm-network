@@ -158,11 +158,10 @@ REMOTE_ADDR=$(echo "$WHOAMI" | awk -F': ' '/^remote_addr:/{print $2}' | tr -d '\
 XFF=$(echo "$WHOAMI"        | awk -F': ' '/^x-forwarded-for:/{print $2}' | tr -d '\r ')
 
 if [[ "$REMOTE_ADDR" == ${EXPECT_REMOTE_PREFIX}* ]]; then
-  if [[ $MODE == 2 ]]; then
-    pass "remote_addr=${REMOTE_ADDR} — webserver sees the NVA DMZ IP (proves inbound traversed an NVA + SNAT)"
-  else
-    pass "remote_addr=${REMOTE_ADDR} — webserver sees the App GW subnet IP (firewall did not SNAT the inbound leg, as designed)"
-  fi
+  case $MODE in
+    2|4|5) pass "remote_addr=${REMOTE_ADDR} — webserver sees the NVA DMZ IP (proves inbound traversed the NVA + SNAT)" ;;
+    3)     pass "remote_addr=${REMOTE_ADDR} — webserver sees the App GW subnet IP (firewall did not SNAT the inbound leg, as designed)" ;;
+  esac
 else
   fail "remote_addr=${REMOTE_ADDR:-<empty>} — expected to start with ${EXPECT_REMOTE_PREFIX}"
 fi
