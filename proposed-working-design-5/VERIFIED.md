@@ -1,5 +1,54 @@
 # Verification Log
 
+## 2026-06-23 — private-frontend retest (dual-frontend App Gateway)
+
+**Why:** a client reported App Gateway health probes never reaching their
+firewall, and asked whether putting a **private IP on the App Gateway** changes
+where the backend/probe traffic routes. We retested design-5 with that variant.
+
+**Azure constraint found:** a **private-ONLY** App Gateway is rejected on the
+**WAF_v2** SKU — `ApplicationGatewayFeatureCannotBeEnabledForSelectedSku:
+... does not support Application Gateway without Public IP for the selected SKU
+tier WAF_v2`. Private-only needs the subscription feature
+`Microsoft.Network/EnableApplicationGatewayNetworkIsolation` (state here:
+**NotRegistered**). So we ran a **dual frontend** instead: the existing public
+frontend **plus** a new private frontend `10.0.1.10` in snet-appgateway, both
+listening :443 and routing to the same NVA backend.
+
+**Resources added for the test:** NAT Gateway on snet-appgateway (deterministic
+App GW egress), and an in-VNet test client (`vm-test-client`, snet-test
+`10.0.6.0/24`) to exercise the private listener — the public `validate-flows.sh`
+cannot reach a private frontend.
+
+### Results
+
+| Check | Result |
+|---|---|
+| Public frontend `/healthz` (from laptop) | **200 OK** — unchanged |
+| Private frontend `/healthz` (from in-VNet test client) | **200 OK** |
+| Private frontend `/whoami` `remote_addr` | `10.0.3.10` — NVA DMZ IP (traffic crossed the NVA + SNAT) |
+| Private frontend `/whoami` `x-forwarded-for` | `10.0.6.4` — the test client's IP, preserved end-to-end |
+| Backend health (NVA `10.0.2.10`) | **Healthy** |
+| `nva-trace` on the NVA | `PREROUTING DNAT eth(trust) :80 → 10.0.3.100` showing **332 pkts** — App GW backend traffic **and** the 30s health probes land on the NVA and DNAT to the webserver |
+
+**What this proves (the client's actual question):** the App Gateway backend
+health probe originates from the **gateway instances** and targets the
+**backend pool member** — it is **independent of which frontend (public or
+private) serves clients.** In design-5 the probe always hits the firewall (NVA)
+because the **backend pool is the NVA trust IP** `10.0.2.10`. Switching the
+frontend to private changed nothing about probe routing, exactly as expected.
+
+The client's "no probes in the firewall" symptom is therefore **not** a frontend
+issue — it means their **backend pool points at something that bypasses the
+firewall** (typically the web server's *public* IP, which Azure hairpins over
+the backbone). Fix: put the firewall's private IP (or a forced route) in the
+backend pool. See [`../appgw-probe-firewall-runbook.md`](../appgw-probe-firewall-runbook.md).
+
+> **Status:** validated live 2026-06-23, then `terraform destroy`-ed (Azure
+> Firewall bills ~$30/day idle). Re-`apply` to bring it back.
+
+---
+
 ## 2026-06-22 — deployed and verified end-to-end (7/7)
 
 design-5 was applied to Azure and `validate-flows.sh` passed every check after

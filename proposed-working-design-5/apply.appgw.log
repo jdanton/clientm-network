@@ -1,0 +1,134 @@
+random_password.pfx: Refreshing state... [id=none]
+tls_private_key.listener: Refreshing state... [id=7c47f2b8b4da2d19f8aa266cf2127e44b40de748]
+tls_self_signed_cert.listener: Refreshing state... [id=110960010364295021967550043324219001855]
+pkcs12_from_pem.listener: Refreshing state... [id=e4f08d8150fb59490814cc8b4f0291655bc01442]
+azurerm_resource_group.lab: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5]
+azurerm_web_application_firewall_policy.appgw: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGatewayWebApplicationFirewallPolicies/waf-clientm-lab-d5]
+azurerm_virtual_network.lab: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5]
+azurerm_subnet.appgw: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-appgateway]
+azurerm_application_gateway.main: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5]
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  ~ update in-place
+
+Terraform will perform the following actions:
+
+  # azurerm_application_gateway.main will be updated in-place
+  ~ resource "azurerm_application_gateway" "main" {
+        id                                = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5"
+        name                              = "appgw-clientm-lab-d5"
+        tags                              = {
+            "environment" = "lab"
+            "managed_by"  = "terraform"
+            "project"     = "clientm-network-troubleshoot"
+        }
+        # (9 unchanged attributes hidden)
+
+      ~ frontend_ip_configuration {
+            id                              = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/frontendIPConfigurations/frontend-public"
+          ~ name                            = "frontend-public" -> "frontend-private"
+          + private_ip_address              = "10.0.1.10"
+          ~ private_ip_address_allocation   = "Dynamic" -> "Static"
+          - public_ip_address_id            = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/publicIPAddresses/pip-clientm-lab-d5-appgw" -> null
+          + subnet_id                       = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-appgateway"
+            # (2 unchanged attributes hidden)
+        }
+
+      - http_listener {
+          - frontend_ip_configuration_id   = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/frontendIPConfigurations/frontend-public" -> null
+          - frontend_ip_configuration_name = "frontend-public" -> null
+          - frontend_port_id               = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/frontendPorts/port_443" -> null
+          - frontend_port_name             = "port_443" -> null
+          - host_names                     = [] -> null
+          - id                             = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/httpListeners/listener-https-public" -> null
+          - name                           = "listener-https-public" -> null
+          - protocol                       = "Https" -> null
+          - require_sni                    = false -> null
+          - ssl_certificate_id             = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/sslCertificates/connectmilbankworkspace" -> null
+          - ssl_certificate_name           = "connectmilbankworkspace" -> null
+            # (4 unchanged attributes hidden)
+        }
+      + http_listener {
+          + frontend_ip_configuration_id   = (known after apply)
+          + frontend_ip_configuration_name = "frontend-private"
+          + frontend_port_id               = (known after apply)
+          + frontend_port_name             = "port_443"
+          + host_names                     = []
+          + id                             = (known after apply)
+          + name                           = "listener-https-private"
+          + protocol                       = "Https"
+          + require_sni                    = false
+          + ssl_certificate_id             = (known after apply)
+          + ssl_certificate_name           = "connectmilbankworkspace"
+          + ssl_profile_id                 = (known after apply)
+            # (3 unchanged attributes hidden)
+        }
+
+      - request_routing_rule {
+          - backend_address_pool_id     = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/backendAddressPools/bepool-nva-trust" -> null
+          - backend_address_pool_name   = "bepool-nva-trust" -> null
+          - backend_http_settings_id    = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/backendHttpSettingsCollection/settings-nva-trust" -> null
+          - backend_http_settings_name  = "settings-nva-trust" -> null
+          - http_listener_id            = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/httpListeners/listener-https-public" -> null
+          - http_listener_name          = "listener-https-public" -> null
+          - id                          = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/requestRoutingRules/rule-https-to-nva-trust" -> null
+          - name                        = "rule-https-to-nva-trust" -> null
+          - priority                    = 1 -> null
+          - rule_type                   = "Basic" -> null
+            # (6 unchanged attributes hidden)
+        }
+      + request_routing_rule {
+          + backend_address_pool_id     = (known after apply)
+          + backend_address_pool_name   = "bepool-nva-trust"
+          + backend_http_settings_id    = (known after apply)
+          + backend_http_settings_name  = "settings-nva-trust"
+          + http_listener_id            = (known after apply)
+          + http_listener_name          = "listener-https-private"
+          + id                          = (known after apply)
+          + name                        = "rule-https-to-nva-trust"
+          + priority                    = 1
+          + redirect_configuration_id   = (known after apply)
+          + rewrite_rule_set_id         = (known after apply)
+          + rule_type                   = "Basic"
+          + url_path_map_id             = (known after apply)
+            # (3 unchanged attributes hidden)
+        }
+
+        # (9 unchanged blocks hidden)
+    }
+
+Plan: 0 to add, 1 to change, 0 to destroy.
+azurerm_application_gateway.main: Modifying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5]
+
+Warning: Resource targeting is in effect
+
+You are creating a plan with the -target option, which means that the result
+of this plan may not represent all of the changes requested by the current
+configuration.
+
+The -target option is not for routine use, and is provided only for
+exceptional situations such as recovering from errors or mistakes, or when
+Terraform specifically suggests to use it as part of an error message.
+
+Warning: Applied changes may be incomplete
+
+The plan was created with the -target option in effect, so some changes
+requested in the configuration may have been ignored and the output values
+may not be fully updated. Run the following command to verify that no other
+changes are pending:
+    terraform plan
+
+Note that the -target option is not suitable for routine use, and is provided
+only for exceptional situations such as recovering from errors or mistakes,
+or when Terraform specifically suggests to use it as part of an error
+message.
+
+Error: updating Application Gateway (Subscription: "424d0f78-5980-4d31-98ec-624616db8e74"
+Resource Group Name: "rg-clientm-lab-d5"
+Application Gateway Name: "appgw-clientm-lab-d5"): performing CreateOrUpdate: unexpected status 400 (400 Bad Request) with error: ApplicationGatewayFeatureCannotBeEnabledForSelectedSku: Application Gateway /subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5 does not support Application Gateway without Public IP for the selected SKU tier WAF_v2. Supported SKU tiers are Standard,WAF.
+
+  with azurerm_application_gateway.main,
+  on appgateway.tf line 63, in resource "azurerm_application_gateway" "main":
+  63: resource "azurerm_application_gateway" "main" {
+

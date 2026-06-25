@@ -94,9 +94,22 @@ resource "azurerm_application_gateway" "main" {
     subnet_id = azurerm_subnet.appgw.id
   }
 
+  # Dual frontend: public (original client edge) AND a private IP in
+  # snet-appgateway. WAF_v2 supports both at once with no feature flag.
+  # The private listener is reachable only from inside the VNet (the test
+  # client in snet-test) — this is the private-IP variant under test.
+  # (Private-ONLY on WAF_v2 needs the EnableApplicationGatewayNetworkIsolation
+  # subscription feature, which is not registered here.)
   frontend_ip_configuration {
     name                 = "frontend-public"
     public_ip_address_id = azurerm_public_ip.appgw.id
+  }
+
+  frontend_ip_configuration {
+    name                          = "frontend-private"
+    subnet_id                     = azurerm_subnet.appgw.id
+    private_ip_address            = var.appgw_private_ip
+    private_ip_address_allocation = "Static"
   }
 
   frontend_port {
@@ -113,6 +126,15 @@ resource "azurerm_application_gateway" "main" {
   http_listener {
     name                           = "listener-https-public"
     frontend_ip_configuration_name = "frontend-public"
+    frontend_port_name             = "port_443"
+    protocol                       = "Https"
+    ssl_certificate_name           = "connectmilbankworkspace"
+    require_sni                    = false
+  }
+
+  http_listener {
+    name                           = "listener-https-private"
+    frontend_ip_configuration_name = "frontend-private"
     frontend_port_name             = "port_443"
     protocol                       = "Https"
     ssl_certificate_name           = "connectmilbankworkspace"
@@ -157,6 +179,15 @@ resource "azurerm_application_gateway" "main" {
     priority                   = 1
     rule_type                  = "Basic"
     http_listener_name         = "listener-https-public"
+    backend_address_pool_name  = "bepool-nva-trust"
+    backend_http_settings_name = "settings-nva-trust"
+  }
+
+  request_routing_rule {
+    name                       = "rule-https-private-to-nva-trust"
+    priority                   = 2
+    rule_type                  = "Basic"
+    http_listener_name         = "listener-https-private"
     backend_address_pool_name  = "bepool-nva-trust"
     backend_http_settings_name = "settings-nva-trust"
   }

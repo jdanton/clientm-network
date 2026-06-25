@@ -48,6 +48,18 @@ variable "subnet_firewall_cidr" {
   default     = "10.0.5.0/26"
 }
 
+variable "subnet_test_cidr" {
+  description = "In-VNet test client subnet — exercises the App Gateway PRIVATE frontend"
+  type        = string
+  default     = "10.0.6.0/24"
+}
+
+variable "appgw_private_ip" {
+  description = "App Gateway private frontend IP (static, in snet-appgateway). Private-only — no public frontend."
+  type        = string
+  default     = "10.0.1.10"
+}
+
 variable "admin_username" {
   type    = string
   default = "azureuser"

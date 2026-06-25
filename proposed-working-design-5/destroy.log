@@ -1,0 +1,1730 @@
+random_password.pfx: Refreshing state... [id=none]
+tls_private_key.listener: Refreshing state... [id=7c47f2b8b4da2d19f8aa266cf2127e44b40de748]
+tls_self_signed_cert.listener: Refreshing state... [id=110960010364295021967550043324219001855]
+pkcs12_from_pem.listener: Refreshing state... [id=e4f08d8150fb59490814cc8b4f0291655bc01442]
+azurerm_resource_group.lab: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5]
+azurerm_nat_gateway.appgw: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/natGateways/natgw-clientm-lab-d5-appgw]
+azurerm_public_ip.nva: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/publicIPAddresses/pip-clientm-lab-d5-nva]
+azurerm_public_ip.test: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/publicIPAddresses/pip-clientm-lab-d5-test]
+azurerm_public_ip.appgw: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/publicIPAddresses/pip-clientm-lab-d5-appgw]
+azurerm_public_ip.natgw: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/publicIPAddresses/pip-clientm-lab-d5-natgw]
+azurerm_network_security_group.dmz: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkSecurityGroups/nsg-dmz]
+azurerm_public_ip.firewall: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/publicIPAddresses/pip-clientm-lab-d5-fw]
+azurerm_network_security_group.trust: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkSecurityGroups/nsg-trust]
+azurerm_network_security_group.test: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkSecurityGroups/nsg-test]
+azurerm_virtual_network.lab: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5]
+azurerm_firewall_policy.egress: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/firewallPolicies/fwpol-clientm-lab-d5]
+azurerm_web_application_firewall_policy.appgw: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGatewayWebApplicationFirewallPolicies/waf-clientm-lab-d5]
+azurerm_network_security_group.untrust: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkSecurityGroups/nsg-untrust]
+azurerm_subnet.firewall: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/AzureFirewallSubnet]
+azurerm_subnet.appgw: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-appgateway]
+azurerm_subnet.trust: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-trust]
+azurerm_subnet.untrust: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-untrust]
+azurerm_subnet.test: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-test]
+azurerm_subnet.dmz: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-dmz]
+azurerm_nat_gateway_public_ip_association.appgw: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/natGateways/natgw-clientm-lab-d5-appgw|/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/publicIPAddresses/pip-clientm-lab-d5-natgw]
+azurerm_network_interface.test: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkInterfaces/nic-test]
+azurerm_subnet_network_security_group_association.test: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-test]
+azurerm_firewall_policy_rule_collection_group.egress: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/firewallPolicies/fwpol-clientm-lab-d5/ruleCollectionGroups/rcg-egress]
+azurerm_subnet_network_security_group_association.dmz: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-dmz]
+azurerm_network_interface.nva_dmz: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkInterfaces/nic-nva-dmz]
+azurerm_subnet_nat_gateway_association.appgw: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-appgateway]
+azurerm_network_interface.webserver: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkInterfaces/nic-webserver]
+azurerm_application_gateway.main: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5]
+azurerm_network_interface.nva_untrust: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkInterfaces/nic-nva-untrust]
+azurerm_subnet_network_security_group_association.untrust: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-untrust]
+azurerm_firewall.main: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/azureFirewalls/afw-clientm-lab-d5]
+azurerm_linux_virtual_machine.test: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Compute/virtualMachines/vm-test-client]
+azurerm_subnet_network_security_group_association.trust: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-trust]
+azurerm_network_interface.nva_trust: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkInterfaces/nic-nva-trust]
+azurerm_route_table.dmz: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/routeTables/rt-clientm-lab-d5-dmz]
+azurerm_linux_virtual_machine.nva: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Compute/virtualMachines/vm-nva]
+azurerm_subnet_route_table_association.dmz: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-dmz]
+azurerm_linux_virtual_machine.webserver: Refreshing state... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Compute/virtualMachines/vm-webserver]
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  - destroy
+
+Terraform will perform the following actions:
+
+  # azurerm_application_gateway.main will be destroyed
+  - resource "azurerm_application_gateway" "main" {
+      - enable_http2                      = false -> null
+      - fips_enabled                      = false -> null
+      - firewall_policy_id                = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGatewayWebApplicationFirewallPolicies/waf-clientm-lab-d5" -> null
+      - force_firewall_policy_association = false -> null
+      - http2_enabled                     = false -> null
+      - id                                = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5" -> null
+      - location                          = "eastus" -> null
+      - name                              = "appgw-clientm-lab-d5" -> null
+      - private_endpoint_connection       = [] -> null
+      - resource_group_name               = "rg-clientm-lab-d5" -> null
+      - tags                              = {
+          - "environment" = "lab"
+          - "managed_by"  = "terraform"
+          - "project"     = "clientm-network-troubleshoot"
+        } -> null
+      - zones                             = [
+          - "1",
+          - "2",
+          - "3",
+        ] -> null
+
+      - autoscale_configuration {
+          - max_capacity = 2 -> null
+          - min_capacity = 0 -> null
+        }
+
+      - backend_address_pool {
+          - fqdns        = [] -> null
+          - id           = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/backendAddressPools/bepool-nva-trust" -> null
+          - ip_addresses = [
+              - "10.0.2.10",
+            ] -> null
+          - name         = "bepool-nva-trust" -> null
+        }
+
+      - backend_http_settings {
+          - certificate_chain_validation_enabled = true -> null
+          - cookie_based_affinity                = "Disabled" -> null
+          - dedicated_backend_connection_enabled = false -> null
+          - host_name                            = "connect.clientmworkspace.com" -> null
+          - id                                   = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/backendHttpSettingsCollection/settings-nva-trust" -> null
+          - name                                 = "settings-nva-trust" -> null
+          - pick_host_name_from_backend_address  = false -> null
+          - port                                 = 80 -> null
+          - probe_id                             = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/probes/probe-healthz" -> null
+          - probe_name                           = "probe-healthz" -> null
+          - protocol                             = "Http" -> null
+          - request_timeout                      = 20 -> null
+          - sni_validation_enabled               = true -> null
+          - trusted_root_certificate_names       = [] -> null
+            # (3 unchanged attributes hidden)
+        }
+
+      - frontend_ip_configuration {
+          - id                              = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/frontendIPConfigurations/frontend-public" -> null
+          - name                            = "frontend-public" -> null
+          - private_ip_address_allocation   = "Dynamic" -> null
+          - public_ip_address_id            = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/publicIPAddresses/pip-clientm-lab-d5-appgw" -> null
+            # (4 unchanged attributes hidden)
+        }
+      - frontend_ip_configuration {
+          - id                              = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/frontendIPConfigurations/frontend-private" -> null
+          - name                            = "frontend-private" -> null
+          - private_ip_address              = "10.0.1.10" -> null
+          - private_ip_address_allocation   = "Static" -> null
+          - subnet_id                       = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-appgateway" -> null
+            # (3 unchanged attributes hidden)
+        }
+
+      - frontend_port {
+          - id   = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/frontendPorts/port_443" -> null
+          - name = "port_443" -> null
+          - port = 443 -> null
+        }
+
+      - gateway_ip_configuration {
+          - id        = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/gatewayIPConfigurations/appGatewayIpConfig" -> null
+          - name      = "appGatewayIpConfig" -> null
+          - subnet_id = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-appgateway" -> null
+        }
+
+      - http_listener {
+          - frontend_ip_configuration_id   = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/frontendIPConfigurations/frontend-private" -> null
+          - frontend_ip_configuration_name = "frontend-private" -> null
+          - frontend_port_id               = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/frontendPorts/port_443" -> null
+          - frontend_port_name             = "port_443" -> null
+          - host_names                     = [] -> null
+          - id                             = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/httpListeners/listener-https-private" -> null
+          - name                           = "listener-https-private" -> null
+          - protocol                       = "Https" -> null
+          - require_sni                    = false -> null
+          - ssl_certificate_id             = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/sslCertificates/connectmilbankworkspace" -> null
+          - ssl_certificate_name           = "connectmilbankworkspace" -> null
+            # (4 unchanged attributes hidden)
+        }
+      - http_listener {
+          - frontend_ip_configuration_id   = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/frontendIPConfigurations/frontend-public" -> null
+          - frontend_ip_configuration_name = "frontend-public" -> null
+          - frontend_port_id               = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/frontendPorts/port_443" -> null
+          - frontend_port_name             = "port_443" -> null
+          - host_names                     = [] -> null
+          - id                             = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/httpListeners/listener-https-public" -> null
+          - name                           = "listener-https-public" -> null
+          - protocol                       = "Https" -> null
+          - require_sni                    = false -> null
+          - ssl_certificate_id             = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/sslCertificates/connectmilbankworkspace" -> null
+          - ssl_certificate_name           = "connectmilbankworkspace" -> null
+            # (4 unchanged attributes hidden)
+        }
+
+      - probe {
+          - host                                      = "connect.clientmworkspace.com" -> null
+          - id                                        = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/probes/probe-healthz" -> null
+          - interval                                  = 30 -> null
+          - minimum_servers                           = 0 -> null
+          - name                                      = "probe-healthz" -> null
+          - path                                      = "/healthz" -> null
+          - pick_host_name_from_backend_http_settings = false -> null
+          - port                                      = 0 -> null
+          - protocol                                  = "Http" -> null
+          - proxy_protocol_header_enabled             = false -> null
+          - timeout                                   = 30 -> null
+          - unhealthy_threshold                       = 3 -> null
+
+          - match {
+              - status_code = [
+                  - "200-299",
+                ] -> null
+                # (1 unchanged attribute hidden)
+            }
+        }
+
+      - request_routing_rule {
+          - backend_address_pool_id     = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/backendAddressPools/bepool-nva-trust" -> null
+          - backend_address_pool_name   = "bepool-nva-trust" -> null
+          - backend_http_settings_id    = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/backendHttpSettingsCollection/settings-nva-trust" -> null
+          - backend_http_settings_name  = "settings-nva-trust" -> null
+          - http_listener_id            = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/httpListeners/listener-https-private" -> null
+          - http_listener_name          = "listener-https-private" -> null
+          - id                          = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/requestRoutingRules/rule-https-private-to-nva-trust" -> null
+          - name                        = "rule-https-private-to-nva-trust" -> null
+          - priority                    = 2 -> null
+          - rule_type                   = "Basic" -> null
+            # (6 unchanged attributes hidden)
+        }
+      - request_routing_rule {
+          - backend_address_pool_id     = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/backendAddressPools/bepool-nva-trust" -> null
+          - backend_address_pool_name   = "bepool-nva-trust" -> null
+          - backend_http_settings_id    = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/backendHttpSettingsCollection/settings-nva-trust" -> null
+          - backend_http_settings_name  = "settings-nva-trust" -> null
+          - http_listener_id            = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/httpListeners/listener-https-public" -> null
+          - http_listener_name          = "listener-https-public" -> null
+          - id                          = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/requestRoutingRules/rule-https-to-nva-trust" -> null
+          - name                        = "rule-https-to-nva-trust" -> null
+          - priority                    = 1 -> null
+          - rule_type                   = "Basic" -> null
+            # (6 unchanged attributes hidden)
+        }
+
+      - sku {
+          - capacity = 0 -> null
+          - name     = "WAF_v2" -> null
+          - tier     = "WAF_v2" -> null
+        }
+
+      - ssl_certificate {
+          # At least one attribute in this block is (or was) sensitive,
+          # so its contents will not be displayed.
+        }
+
+      - ssl_policy {
+          - cipher_suites        = [] -> null
+          - disabled_protocols   = [] -> null
+          - policy_name          = "AppGwSslPolicy20220101" -> null
+          - policy_type          = "Predefined" -> null
+            # (1 unchanged attribute hidden)
+        }
+    }
+
+  # azurerm_firewall.main will be destroyed
+  - resource "azurerm_firewall" "main" {
+      - dns_proxy_enabled   = false -> null
+      - dns_servers         = [] -> null
+      - firewall_policy_id  = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/firewallPolicies/fwpol-clientm-lab-d5" -> null
+      - id                  = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/azureFirewalls/afw-clientm-lab-d5" -> null
+      - location            = "eastus" -> null
+      - name                = "afw-clientm-lab-d5" -> null
+      - private_ip_ranges   = [] -> null
+      - resource_group_name = "rg-clientm-lab-d5" -> null
+      - sku_name            = "AZFW_VNet" -> null
+      - sku_tier            = "Standard" -> null
+      - tags                = {
+          - "environment" = "lab"
+          - "managed_by"  = "terraform"
+          - "project"     = "clientm-network-troubleshoot"
+        } -> null
+      - threat_intel_mode   = "Alert" -> null
+      - zones               = [
+          - "1",
+          - "2",
+          - "3",
+        ] -> null
+
+      - ip_configuration {
+          - name                 = "fw-ipconfig" -> null
+          - private_ip_address   = "10.0.5.4" -> null
+          - public_ip_address_id = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/publicIPAddresses/pip-clientm-lab-d5-fw" -> null
+          - subnet_id            = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/AzureFirewallSubnet" -> null
+        }
+    }
+
+  # azurerm_firewall_policy.egress will be destroyed
+  - resource "azurerm_firewall_policy" "egress" {
+      - auto_learn_private_ranges_enabled = false -> null
+      - child_policies                    = [] -> null
+      - firewalls                         = [
+          - "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/azureFirewalls/afw-clientm-lab-d5",
+        ] -> null
+      - id                                = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/firewallPolicies/fwpol-clientm-lab-d5" -> null
+      - location                          = "eastus" -> null
+      - name                              = "fwpol-clientm-lab-d5" -> null
+      - private_ip_ranges                 = [] -> null
+      - resource_group_name               = "rg-clientm-lab-d5" -> null
+      - rule_collection_groups            = [
+          - "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/firewallPolicies/fwpol-clientm-lab-d5/ruleCollectionGroups/rcg-egress",
+        ] -> null
+      - sku                               = "Standard" -> null
+      - tags                              = {
+          - "environment" = "lab"
+          - "managed_by"  = "terraform"
+          - "project"     = "clientm-network-troubleshoot"
+        } -> null
+      - threat_intelligence_mode          = "Alert" -> null
+        # (1 unchanged attribute hidden)
+    }
+
+  # azurerm_firewall_policy_rule_collection_group.egress will be destroyed
+  - resource "azurerm_firewall_policy_rule_collection_group" "egress" {
+      - firewall_policy_id = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/firewallPolicies/fwpol-clientm-lab-d5" -> null
+      - id                 = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/firewallPolicies/fwpol-clientm-lab-d5/ruleCollectionGroups/rcg-egress" -> null
+      - name               = "rcg-egress" -> null
+      - priority           = 200 -> null
+
+      - application_rule_collection {
+          - action   = "Allow" -> null
+          - name     = "app-egress" -> null
+          - priority = 300 -> null
+
+          - rule {
+              - destination_addresses = [] -> null
+              - destination_fqdn_tags = [] -> null
+              - destination_fqdns     = [
+                  - "*.ubuntu.com",
+                  - "*.canonical.com",
+                  - "azure.archive.ubuntu.com",
+                  - "security.ubuntu.com",
+                  - "api.ipify.org",
+                ] -> null
+              - destination_urls      = [] -> null
+              - name                  = "allowed-fqdns" -> null
+              - source_addresses      = [
+                  - "10.0.3.0/24",
+                ] -> null
+              - source_ip_groups      = [] -> null
+              - terminate_tls         = false -> null
+              - web_categories        = [] -> null
+                # (1 unchanged attribute hidden)
+
+              - protocols {
+                  - port = 80 -> null
+                  - type = "Http" -> null
+                }
+              - protocols {
+                  - port = 443 -> null
+                  - type = "Https" -> null
+                }
+            }
+        }
+
+      - network_rule_collection {
+          - action   = "Allow" -> null
+          - name     = "net-egress" -> null
+          - priority = 200 -> null
+
+          - rule {
+              - destination_addresses = [
+                  - "*",
+                ] -> null
+              - destination_fqdns     = [] -> null
+              - destination_ip_groups = [] -> null
+              - destination_ports     = [
+                  - "53",
+                ] -> null
+              - name                  = "dns" -> null
+              - protocols             = [
+                  - "UDP",
+                  - "TCP",
+                ] -> null
+              - source_addresses      = [
+                  - "10.0.3.0/24",
+                ] -> null
+              - source_ip_groups      = [] -> null
+                # (1 unchanged attribute hidden)
+            }
+          - rule {
+              - destination_addresses = [
+                  - "*",
+                ] -> null
+              - destination_fqdns     = [] -> null
+              - destination_ip_groups = [] -> null
+              - destination_ports     = [
+                  - "123",
+                ] -> null
+              - name                  = "ntp" -> null
+              - protocols             = [
+                  - "UDP",
+                ] -> null
+              - source_addresses      = [
+                  - "10.0.3.0/24",
+                ] -> null
+              - source_ip_groups      = [] -> null
+                # (1 unchanged attribute hidden)
+            }
+        }
+    }
+
+  # azurerm_linux_virtual_machine.nva will be destroyed
+  - resource "azurerm_linux_virtual_machine" "nva" {
+      - admin_username                                         = "azureuser" -> null
+      - allow_extension_operations                             = true -> null
+      - bypass_platform_safety_checks_on_user_schedule_enabled = false -> null
+      - computer_name                                          = "vm-nva" -> null
+      - custom_data                                            = (sensitive value) -> null
+      - disable_password_authentication                        = true -> null
+      - disk_controller_type                                   = "SCSI" -> null
+      - encryption_at_host_enabled                             = false -> null
+      - extensions_time_budget                                 = "PT1H30M" -> null
+      - id                                                     = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Compute/virtualMachines/vm-nva" -> null
+      - location                                               = "eastus" -> null
+      - max_bid_price                                          = -1 -> null
+      - name                                                   = "vm-nva" -> null
+      - network_interface_ids                                  = [
+          - "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkInterfaces/nic-nva-untrust",
+          - "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkInterfaces/nic-nva-trust",
+          - "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkInterfaces/nic-nva-dmz",
+        ] -> null
+      - os_managed_disk_id                                     = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Compute/disks/vm-nva_OsDisk_1_b00e85f216ce40d5912c0ffa461575f5" -> null
+      - patch_assessment_mode                                  = "ImageDefault" -> null
+      - patch_mode                                             = "ImageDefault" -> null
+      - platform_fault_domain                                  = -1 -> null
+      - priority                                               = "Regular" -> null
+      - private_ip_address                                     = "10.0.4.10" -> null
+      - private_ip_addresses                                   = [
+          - "10.0.4.10",
+          - "10.0.2.10",
+          - "10.0.3.10",
+        ] -> null
+      - provision_vm_agent                                     = true -> null
+      - public_ip_address                                      = "20.55.26.168" -> null
+      - public_ip_addresses                                    = [
+          - "20.55.26.168",
+        ] -> null
+      - resource_group_name                                    = "rg-clientm-lab-d5" -> null
+      - secure_boot_enabled                                    = false -> null
+      - size                                                   = "Standard_B2s" -> null
+      - tags                                                   = {
+          - "environment" = "lab"
+          - "managed_by"  = "terraform"
+          - "project"     = "clientm-network-troubleshoot"
+        } -> null
+      - virtual_machine_id                                     = "49e4264c-ba01-4a02-81ad-47ba68ad4623" -> null
+      - vm_agent_platform_updates_enabled                      = false -> null
+      - vtpm_enabled                                           = false -> null
+      - zone                                                   = "2" -> null
+        # (12 unchanged attributes hidden)
+
+      - admin_ssh_key {
+          - public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICzLS+8tZMnNBgZwtCEluI4MkkZOIhq54sKb88MTRphx clientm-lab" -> null
+          - username   = "azureuser" -> null
+        }
+
+      - os_disk {
+          - caching                          = "ReadWrite" -> null
+          - disk_size_gb                     = 30 -> null
+          - id                               = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Compute/disks/vm-nva_OsDisk_1_b00e85f216ce40d5912c0ffa461575f5" -> null
+          - name                             = "vm-nva_OsDisk_1_b00e85f216ce40d5912c0ffa461575f5" -> null
+          - storage_account_type             = "Standard_LRS" -> null
+          - write_accelerator_enabled        = false -> null
+            # (3 unchanged attributes hidden)
+        }
+
+      - source_image_reference {
+          - offer     = "ubuntu-24_04-lts" -> null
+          - publisher = "Canonical" -> null
+          - sku       = "server" -> null
+          - version   = "latest" -> null
+        }
+    }
+
+  # azurerm_linux_virtual_machine.test will be destroyed
+  - resource "azurerm_linux_virtual_machine" "test" {
+      - admin_username                                         = "azureuser" -> null
+      - allow_extension_operations                             = true -> null
+      - bypass_platform_safety_checks_on_user_schedule_enabled = false -> null
+      - computer_name                                          = "vm-test-client" -> null
+      - disable_password_authentication                        = true -> null
+      - disk_controller_type                                   = "SCSI" -> null
+      - encryption_at_host_enabled                             = false -> null
+      - extensions_time_budget                                 = "PT1H30M" -> null
+      - id                                                     = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Compute/virtualMachines/vm-test-client" -> null
+      - location                                               = "eastus" -> null
+      - max_bid_price                                          = -1 -> null
+      - name                                                   = "vm-test-client" -> null
+      - network_interface_ids                                  = [
+          - "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkInterfaces/nic-test",
+        ] -> null
+      - os_managed_disk_id                                     = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Compute/disks/vm-test-client_OsDisk_1_6ac40071848849b399a6ecdc79f8ee1a" -> null
+      - patch_assessment_mode                                  = "ImageDefault" -> null
+      - patch_mode                                             = "ImageDefault" -> null
+      - platform_fault_domain                                  = -1 -> null
+      - priority                                               = "Regular" -> null
+      - private_ip_address                                     = "10.0.6.4" -> null
+      - private_ip_addresses                                   = [
+          - "10.0.6.4",
+        ] -> null
+      - provision_vm_agent                                     = true -> null
+      - public_ip_address                                      = "40.76.114.213" -> null
+      - public_ip_addresses                                    = [
+          - "40.76.114.213",
+        ] -> null
+      - resource_group_name                                    = "rg-clientm-lab-d5" -> null
+      - secure_boot_enabled                                    = false -> null
+      - size                                                   = "Standard_B2s" -> null
+      - tags                                                   = {
+          - "environment" = "lab"
+          - "managed_by"  = "terraform"
+          - "project"     = "clientm-network-troubleshoot"
+        } -> null
+      - virtual_machine_id                                     = "90782b56-b911-4eae-84db-0fec74f1718e" -> null
+      - vm_agent_platform_updates_enabled                      = false -> null
+      - vtpm_enabled                                           = false -> null
+      - zone                                                   = "2" -> null
+        # (12 unchanged attributes hidden)
+
+      - admin_ssh_key {
+          - public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICzLS+8tZMnNBgZwtCEluI4MkkZOIhq54sKb88MTRphx clientm-lab" -> null
+          - username   = "azureuser" -> null
+        }
+
+      - os_disk {
+          - caching                          = "ReadWrite" -> null
+          - disk_size_gb                     = 30 -> null
+          - id                               = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Compute/disks/vm-test-client_OsDisk_1_6ac40071848849b399a6ecdc79f8ee1a" -> null
+          - name                             = "vm-test-client_OsDisk_1_6ac40071848849b399a6ecdc79f8ee1a" -> null
+          - storage_account_type             = "Standard_LRS" -> null
+          - write_accelerator_enabled        = false -> null
+            # (3 unchanged attributes hidden)
+        }
+
+      - source_image_reference {
+          - offer     = "ubuntu-24_04-lts" -> null
+          - publisher = "Canonical" -> null
+          - sku       = "server" -> null
+          - version   = "latest" -> null
+        }
+    }
+
+  # azurerm_linux_virtual_machine.webserver will be destroyed
+  - resource "azurerm_linux_virtual_machine" "webserver" {
+      - admin_username                                         = "azureuser" -> null
+      - allow_extension_operations                             = true -> null
+      - bypass_platform_safety_checks_on_user_schedule_enabled = false -> null
+      - computer_name                                          = "vm-webserver" -> null
+      - custom_data                                            = (sensitive value) -> null
+      - disable_password_authentication                        = true -> null
+      - disk_controller_type                                   = "SCSI" -> null
+      - encryption_at_host_enabled                             = false -> null
+      - extensions_time_budget                                 = "PT1H30M" -> null
+      - id                                                     = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Compute/virtualMachines/vm-webserver" -> null
+      - location                                               = "eastus" -> null
+      - max_bid_price                                          = -1 -> null
+      - name                                                   = "vm-webserver" -> null
+      - network_interface_ids                                  = [
+          - "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkInterfaces/nic-webserver",
+        ] -> null
+      - os_managed_disk_id                                     = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Compute/disks/vm-webserver_OsDisk_1_17dabae2a65548c7bb458741c77c1c1e" -> null
+      - patch_assessment_mode                                  = "ImageDefault" -> null
+      - patch_mode                                             = "ImageDefault" -> null
+      - platform_fault_domain                                  = -1 -> null
+      - priority                                               = "Regular" -> null
+      - private_ip_address                                     = "10.0.3.100" -> null
+      - private_ip_addresses                                   = [
+          - "10.0.3.100",
+        ] -> null
+      - provision_vm_agent                                     = true -> null
+      - public_ip_addresses                                    = [] -> null
+      - resource_group_name                                    = "rg-clientm-lab-d5" -> null
+      - secure_boot_enabled                                    = false -> null
+      - size                                                   = "Standard_B2s" -> null
+      - tags                                                   = {
+          - "environment" = "lab"
+          - "managed_by"  = "terraform"
+          - "project"     = "clientm-network-troubleshoot"
+        } -> null
+      - virtual_machine_id                                     = "c72b8596-f03c-41f2-a362-91be7e9efcce" -> null
+      - vm_agent_platform_updates_enabled                      = false -> null
+      - vtpm_enabled                                           = false -> null
+      - zone                                                   = "2" -> null
+        # (13 unchanged attributes hidden)
+
+      - admin_ssh_key {
+          - public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICzLS+8tZMnNBgZwtCEluI4MkkZOIhq54sKb88MTRphx clientm-lab" -> null
+          - username   = "azureuser" -> null
+        }
+
+      - os_disk {
+          - caching                          = "ReadWrite" -> null
+          - disk_size_gb                     = 30 -> null
+          - id                               = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Compute/disks/vm-webserver_OsDisk_1_17dabae2a65548c7bb458741c77c1c1e" -> null
+          - name                             = "vm-webserver_OsDisk_1_17dabae2a65548c7bb458741c77c1c1e" -> null
+          - storage_account_type             = "Standard_LRS" -> null
+          - write_accelerator_enabled        = false -> null
+            # (3 unchanged attributes hidden)
+        }
+
+      - source_image_reference {
+          - offer     = "ubuntu-24_04-lts" -> null
+          - publisher = "Canonical" -> null
+          - sku       = "server" -> null
+          - version   = "latest" -> null
+        }
+    }
+
+  # azurerm_nat_gateway.appgw will be destroyed
+  - resource "azurerm_nat_gateway" "appgw" {
+      - id                      = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/natGateways/natgw-clientm-lab-d5-appgw" -> null
+      - idle_timeout_in_minutes = 4 -> null
+      - location                = "eastus" -> null
+      - name                    = "natgw-clientm-lab-d5-appgw" -> null
+      - resource_group_name     = "rg-clientm-lab-d5" -> null
+      - resource_guid           = "e7035611-f60b-4527-b1fd-194c8b266594" -> null
+      - sku_name                = "Standard" -> null
+      - tags                    = {
+          - "environment" = "lab"
+          - "managed_by"  = "terraform"
+          - "project"     = "clientm-network-troubleshoot"
+        } -> null
+      - zones                   = [] -> null
+    }
+
+  # azurerm_nat_gateway_public_ip_association.appgw will be destroyed
+  - resource "azurerm_nat_gateway_public_ip_association" "appgw" {
+      - id                   = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/natGateways/natgw-clientm-lab-d5-appgw|/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/publicIPAddresses/pip-clientm-lab-d5-natgw" -> null
+      - nat_gateway_id       = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/natGateways/natgw-clientm-lab-d5-appgw" -> null
+      - public_ip_address_id = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/publicIPAddresses/pip-clientm-lab-d5-natgw" -> null
+    }
+
+  # azurerm_network_interface.nva_dmz will be destroyed
+  - resource "azurerm_network_interface" "nva_dmz" {
+      - accelerated_networking_enabled = false -> null
+      - applied_dns_servers            = [] -> null
+      - dns_servers                    = [] -> null
+      - id                             = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkInterfaces/nic-nva-dmz" -> null
+      - ip_forwarding_enabled          = true -> null
+      - location                       = "eastus" -> null
+      - mac_address                    = "70-A8-A5-91-B1-BC" -> null
+      - name                           = "nic-nva-dmz" -> null
+      - private_ip_address             = "10.0.3.10" -> null
+      - private_ip_addresses           = [
+          - "10.0.3.10",
+        ] -> null
+      - resource_group_name            = "rg-clientm-lab-d5" -> null
+      - tags                           = {
+          - "environment" = "lab"
+          - "managed_by"  = "terraform"
+          - "project"     = "clientm-network-troubleshoot"
+        } -> null
+      - virtual_machine_id             = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Compute/virtualMachines/vm-nva" -> null
+        # (5 unchanged attributes hidden)
+
+      - ip_configuration {
+          - name                                               = "ipconfig-dmz" -> null
+          - primary                                            = true -> null
+          - private_ip_address                                 = "10.0.3.10" -> null
+          - private_ip_address_allocation                      = "Static" -> null
+          - private_ip_address_version                         = "IPv4" -> null
+          - subnet_id                                          = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-dmz" -> null
+            # (2 unchanged attributes hidden)
+        }
+    }
+
+  # azurerm_network_interface.nva_trust will be destroyed
+  - resource "azurerm_network_interface" "nva_trust" {
+      - accelerated_networking_enabled = false -> null
+      - applied_dns_servers            = [] -> null
+      - dns_servers                    = [] -> null
+      - id                             = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkInterfaces/nic-nva-trust" -> null
+      - ip_forwarding_enabled          = true -> null
+      - location                       = "eastus" -> null
+      - mac_address                    = "70-A8-A5-91-B0-05" -> null
+      - name                           = "nic-nva-trust" -> null
+      - private_ip_address             = "10.0.2.10" -> null
+      - private_ip_addresses           = [
+          - "10.0.2.10",
+        ] -> null
+      - resource_group_name            = "rg-clientm-lab-d5" -> null
+      - tags                           = {
+          - "environment" = "lab"
+          - "managed_by"  = "terraform"
+          - "project"     = "clientm-network-troubleshoot"
+        } -> null
+      - virtual_machine_id             = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Compute/virtualMachines/vm-nva" -> null
+        # (5 unchanged attributes hidden)
+
+      - ip_configuration {
+          - name                                               = "ipconfig-trust" -> null
+          - primary                                            = true -> null
+          - private_ip_address                                 = "10.0.2.10" -> null
+          - private_ip_address_allocation                      = "Static" -> null
+          - private_ip_address_version                         = "IPv4" -> null
+          - subnet_id                                          = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-trust" -> null
+            # (2 unchanged attributes hidden)
+        }
+    }
+
+  # azurerm_network_interface.nva_untrust will be destroyed
+  - resource "azurerm_network_interface" "nva_untrust" {
+      - accelerated_networking_enabled = false -> null
+      - applied_dns_servers            = [] -> null
+      - dns_servers                    = [] -> null
+      - id                             = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkInterfaces/nic-nva-untrust" -> null
+      - ip_forwarding_enabled          = true -> null
+      - location                       = "eastus" -> null
+      - mac_address                    = "70-A8-A5-91-B5-D5" -> null
+      - name                           = "nic-nva-untrust" -> null
+      - private_ip_address             = "10.0.4.10" -> null
+      - private_ip_addresses           = [
+          - "10.0.4.10",
+        ] -> null
+      - resource_group_name            = "rg-clientm-lab-d5" -> null
+      - tags                           = {
+          - "environment" = "lab"
+          - "managed_by"  = "terraform"
+          - "project"     = "clientm-network-troubleshoot"
+        } -> null
+      - virtual_machine_id             = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Compute/virtualMachines/vm-nva" -> null
+        # (5 unchanged attributes hidden)
+
+      - ip_configuration {
+          - name                                               = "ipconfig-untrust" -> null
+          - primary                                            = true -> null
+          - private_ip_address                                 = "10.0.4.10" -> null
+          - private_ip_address_allocation                      = "Static" -> null
+          - private_ip_address_version                         = "IPv4" -> null
+          - public_ip_address_id                               = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/publicIPAddresses/pip-clientm-lab-d5-nva" -> null
+          - subnet_id                                          = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-untrust" -> null
+            # (1 unchanged attribute hidden)
+        }
+    }
+
+  # azurerm_network_interface.test will be destroyed
+  - resource "azurerm_network_interface" "test" {
+      - accelerated_networking_enabled = false -> null
+      - applied_dns_servers            = [] -> null
+      - dns_servers                    = [] -> null
+      - id                             = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkInterfaces/nic-test" -> null
+      - internal_domain_name_suffix    = "mp55z5s3ohwuzpka01b12reh2a.bx.internal.cloudapp.net" -> null
+      - ip_forwarding_enabled          = false -> null
+      - location                       = "eastus" -> null
+      - mac_address                    = "7C-ED-8D-1C-D5-44" -> null
+      - name                           = "nic-test" -> null
+      - private_ip_address             = "10.0.6.4" -> null
+      - private_ip_addresses           = [
+          - "10.0.6.4",
+        ] -> null
+      - resource_group_name            = "rg-clientm-lab-d5" -> null
+      - tags                           = {
+          - "environment" = "lab"
+          - "managed_by"  = "terraform"
+          - "project"     = "clientm-network-troubleshoot"
+        } -> null
+      - virtual_machine_id             = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Compute/virtualMachines/vm-test-client" -> null
+        # (4 unchanged attributes hidden)
+
+      - ip_configuration {
+          - name                                               = "ipconfig-test" -> null
+          - primary                                            = true -> null
+          - private_ip_address                                 = "10.0.6.4" -> null
+          - private_ip_address_allocation                      = "Dynamic" -> null
+          - private_ip_address_version                         = "IPv4" -> null
+          - public_ip_address_id                               = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/publicIPAddresses/pip-clientm-lab-d5-test" -> null
+          - subnet_id                                          = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-test" -> null
+            # (1 unchanged attribute hidden)
+        }
+    }
+
+  # azurerm_network_interface.webserver will be destroyed
+  - resource "azurerm_network_interface" "webserver" {
+      - accelerated_networking_enabled = false -> null
+      - applied_dns_servers            = [] -> null
+      - dns_servers                    = [] -> null
+      - id                             = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkInterfaces/nic-webserver" -> null
+      - ip_forwarding_enabled          = false -> null
+      - location                       = "eastus" -> null
+      - mac_address                    = "00-0D-3A-12-E5-25" -> null
+      - name                           = "nic-webserver" -> null
+      - private_ip_address             = "10.0.3.100" -> null
+      - private_ip_addresses           = [
+          - "10.0.3.100",
+        ] -> null
+      - resource_group_name            = "rg-clientm-lab-d5" -> null
+      - tags                           = {
+          - "environment" = "lab"
+          - "managed_by"  = "terraform"
+          - "project"     = "clientm-network-troubleshoot"
+        } -> null
+      - virtual_machine_id             = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Compute/virtualMachines/vm-webserver" -> null
+        # (5 unchanged attributes hidden)
+
+      - ip_configuration {
+          - name                                               = "ipconfig-dmz" -> null
+          - primary                                            = true -> null
+          - private_ip_address                                 = "10.0.3.100" -> null
+          - private_ip_address_allocation                      = "Static" -> null
+          - private_ip_address_version                         = "IPv4" -> null
+          - subnet_id                                          = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-dmz" -> null
+            # (2 unchanged attributes hidden)
+        }
+    }
+
+  # azurerm_network_security_group.dmz will be destroyed
+  - resource "azurerm_network_security_group" "dmz" {
+      - id                  = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkSecurityGroups/nsg-dmz" -> null
+      - location            = "eastus" -> null
+      - name                = "nsg-dmz" -> null
+      - resource_group_name = "rg-clientm-lab-d5" -> null
+      - security_rule       = [
+          - {
+              - access                                     = "Allow"
+              - destination_address_prefix                 = "VirtualNetwork"
+              - destination_address_prefixes               = []
+              - destination_application_security_group_ids = []
+              - destination_port_range                     = "*"
+              - destination_port_ranges                    = []
+              - direction                                  = "Inbound"
+              - name                                       = "AllowVNetInbound"
+              - priority                                   = 100
+              - protocol                                   = "*"
+              - source_address_prefix                      = "VirtualNetwork"
+              - source_address_prefixes                    = []
+              - source_application_security_group_ids      = []
+              - source_port_range                          = "*"
+              - source_port_ranges                         = []
+                # (1 unchanged attribute hidden)
+            },
+        ] -> null
+      - tags                = {
+          - "environment" = "lab"
+          - "managed_by"  = "terraform"
+          - "project"     = "clientm-network-troubleshoot"
+        } -> null
+    }
+
+  # azurerm_network_security_group.test will be destroyed
+  - resource "azurerm_network_security_group" "test" {
+      - id                  = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkSecurityGroups/nsg-test" -> null
+      - location            = "eastus" -> null
+      - name                = "nsg-test" -> null
+      - resource_group_name = "rg-clientm-lab-d5" -> null
+      - security_rule       = [
+          - {
+              - access                                     = "Allow"
+              - destination_address_prefix                 = "*"
+              - destination_address_prefixes               = []
+              - destination_application_security_group_ids = []
+              - destination_port_range                     = "22"
+              - destination_port_ranges                    = []
+              - direction                                  = "Inbound"
+              - name                                       = "AllowSSHFromAdmin"
+              - priority                                   = 100
+              - protocol                                   = "Tcp"
+              - source_address_prefix                      = "73.141.144.228/32"
+              - source_address_prefixes                    = []
+              - source_application_security_group_ids      = []
+              - source_port_range                          = "*"
+              - source_port_ranges                         = []
+                # (1 unchanged attribute hidden)
+            },
+          - {
+              - access                                     = "Allow"
+              - destination_address_prefix                 = "VirtualNetwork"
+              - destination_address_prefixes               = []
+              - destination_application_security_group_ids = []
+              - destination_port_range                     = "*"
+              - destination_port_ranges                    = []
+              - direction                                  = "Inbound"
+              - name                                       = "AllowVNetInbound"
+              - priority                                   = 110
+              - protocol                                   = "*"
+              - source_address_prefix                      = "VirtualNetwork"
+              - source_address_prefixes                    = []
+              - source_application_security_group_ids      = []
+              - source_port_range                          = "*"
+              - source_port_ranges                         = []
+                # (1 unchanged attribute hidden)
+            },
+        ] -> null
+      - tags                = {
+          - "environment" = "lab"
+          - "managed_by"  = "terraform"
+          - "project"     = "clientm-network-troubleshoot"
+        } -> null
+    }
+
+  # azurerm_network_security_group.trust will be destroyed
+  - resource "azurerm_network_security_group" "trust" {
+      - id                  = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkSecurityGroups/nsg-trust" -> null
+      - location            = "eastus" -> null
+      - name                = "nsg-trust" -> null
+      - resource_group_name = "rg-clientm-lab-d5" -> null
+      - security_rule       = [
+          - {
+              - access                                     = "Allow"
+              - destination_address_prefix                 = "VirtualNetwork"
+              - destination_address_prefixes               = []
+              - destination_application_security_group_ids = []
+              - destination_port_range                     = "*"
+              - destination_port_ranges                    = []
+              - direction                                  = "Inbound"
+              - name                                       = "AllowVNetInbound"
+              - priority                                   = 100
+              - protocol                                   = "*"
+              - source_address_prefix                      = "VirtualNetwork"
+              - source_address_prefixes                    = []
+              - source_application_security_group_ids      = []
+              - source_port_range                          = "*"
+              - source_port_ranges                         = []
+                # (1 unchanged attribute hidden)
+            },
+        ] -> null
+      - tags                = {
+          - "environment" = "lab"
+          - "managed_by"  = "terraform"
+          - "project"     = "clientm-network-troubleshoot"
+        } -> null
+    }
+
+  # azurerm_network_security_group.untrust will be destroyed
+  - resource "azurerm_network_security_group" "untrust" {
+      - id                  = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkSecurityGroups/nsg-untrust" -> null
+      - location            = "eastus" -> null
+      - name                = "nsg-untrust" -> null
+      - resource_group_name = "rg-clientm-lab-d5" -> null
+      - security_rule       = [
+          - {
+              - access                                     = "Allow"
+              - destination_address_prefix                 = "*"
+              - destination_address_prefixes               = []
+              - destination_application_security_group_ids = []
+              - destination_port_range                     = "22"
+              - destination_port_ranges                    = []
+              - direction                                  = "Inbound"
+              - name                                       = "AllowSSHFromAdmin"
+              - priority                                   = 100
+              - protocol                                   = "Tcp"
+              - source_address_prefix                      = "73.141.144.228/32"
+              - source_address_prefixes                    = []
+              - source_application_security_group_ids      = []
+              - source_port_range                          = "*"
+              - source_port_ranges                         = []
+                # (1 unchanged attribute hidden)
+            },
+          - {
+              - access                                     = "Allow"
+              - destination_address_prefix                 = "VirtualNetwork"
+              - destination_address_prefixes               = []
+              - destination_application_security_group_ids = []
+              - destination_port_range                     = "*"
+              - destination_port_ranges                    = []
+              - direction                                  = "Inbound"
+              - name                                       = "AllowVNetInbound"
+              - priority                                   = 110
+              - protocol                                   = "*"
+              - source_address_prefix                      = "VirtualNetwork"
+              - source_address_prefixes                    = []
+              - source_application_security_group_ids      = []
+              - source_port_range                          = "*"
+              - source_port_ranges                         = []
+                # (1 unchanged attribute hidden)
+            },
+        ] -> null
+      - tags                = {
+          - "environment" = "lab"
+          - "managed_by"  = "terraform"
+          - "project"     = "clientm-network-troubleshoot"
+        } -> null
+    }
+
+  # azurerm_public_ip.appgw will be destroyed
+  - resource "azurerm_public_ip" "appgw" {
+      - allocation_method       = "Static" -> null
+      - ddos_protection_mode    = "VirtualNetworkInherited" -> null
+      - id                      = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/publicIPAddresses/pip-clientm-lab-d5-appgw" -> null
+      - idle_timeout_in_minutes = 4 -> null
+      - ip_address              = "20.242.195.8" -> null
+      - ip_tags                 = {} -> null
+      - ip_version              = "IPv4" -> null
+      - location                = "eastus" -> null
+      - name                    = "pip-clientm-lab-d5-appgw" -> null
+      - resource_group_name     = "rg-clientm-lab-d5" -> null
+      - sku                     = "Standard" -> null
+      - sku_tier                = "Regional" -> null
+      - tags                    = {
+          - "environment" = "lab"
+          - "managed_by"  = "terraform"
+          - "project"     = "clientm-network-troubleshoot"
+        } -> null
+      - zones                   = [
+          - "1",
+          - "2",
+          - "3",
+        ] -> null
+        # (5 unchanged attributes hidden)
+    }
+
+  # azurerm_public_ip.firewall will be destroyed
+  - resource "azurerm_public_ip" "firewall" {
+      - allocation_method       = "Static" -> null
+      - ddos_protection_mode    = "VirtualNetworkInherited" -> null
+      - id                      = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/publicIPAddresses/pip-clientm-lab-d5-fw" -> null
+      - idle_timeout_in_minutes = 4 -> null
+      - ip_address              = "20.81.61.132" -> null
+      - ip_tags                 = {} -> null
+      - ip_version              = "IPv4" -> null
+      - location                = "eastus" -> null
+      - name                    = "pip-clientm-lab-d5-fw" -> null
+      - resource_group_name     = "rg-clientm-lab-d5" -> null
+      - sku                     = "Standard" -> null
+      - sku_tier                = "Regional" -> null
+      - tags                    = {
+          - "environment" = "lab"
+          - "managed_by"  = "terraform"
+          - "project"     = "clientm-network-troubleshoot"
+        } -> null
+      - zones                   = [
+          - "1",
+          - "2",
+          - "3",
+        ] -> null
+        # (5 unchanged attributes hidden)
+    }
+
+  # azurerm_public_ip.natgw will be destroyed
+  - resource "azurerm_public_ip" "natgw" {
+      - allocation_method       = "Static" -> null
+      - ddos_protection_mode    = "VirtualNetworkInherited" -> null
+      - id                      = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/publicIPAddresses/pip-clientm-lab-d5-natgw" -> null
+      - idle_timeout_in_minutes = 4 -> null
+      - ip_address              = "20.124.99.66" -> null
+      - ip_tags                 = {} -> null
+      - ip_version              = "IPv4" -> null
+      - location                = "eastus" -> null
+      - name                    = "pip-clientm-lab-d5-natgw" -> null
+      - resource_group_name     = "rg-clientm-lab-d5" -> null
+      - sku                     = "Standard" -> null
+      - sku_tier                = "Regional" -> null
+      - tags                    = {
+          - "environment" = "lab"
+          - "managed_by"  = "terraform"
+          - "project"     = "clientm-network-troubleshoot"
+        } -> null
+      - zones                   = [] -> null
+        # (5 unchanged attributes hidden)
+    }
+
+  # azurerm_public_ip.nva will be destroyed
+  - resource "azurerm_public_ip" "nva" {
+      - allocation_method       = "Static" -> null
+      - ddos_protection_mode    = "VirtualNetworkInherited" -> null
+      - id                      = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/publicIPAddresses/pip-clientm-lab-d5-nva" -> null
+      - idle_timeout_in_minutes = 4 -> null
+      - ip_address              = "20.55.26.168" -> null
+      - ip_tags                 = {} -> null
+      - ip_version              = "IPv4" -> null
+      - location                = "eastus" -> null
+      - name                    = "pip-clientm-lab-d5-nva" -> null
+      - resource_group_name     = "rg-clientm-lab-d5" -> null
+      - sku                     = "Standard" -> null
+      - sku_tier                = "Regional" -> null
+      - tags                    = {
+          - "environment" = "lab"
+          - "managed_by"  = "terraform"
+          - "project"     = "clientm-network-troubleshoot"
+        } -> null
+      - zones                   = [
+          - "2",
+        ] -> null
+        # (5 unchanged attributes hidden)
+    }
+
+  # azurerm_public_ip.test will be destroyed
+  - resource "azurerm_public_ip" "test" {
+      - allocation_method       = "Static" -> null
+      - ddos_protection_mode    = "VirtualNetworkInherited" -> null
+      - id                      = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/publicIPAddresses/pip-clientm-lab-d5-test" -> null
+      - idle_timeout_in_minutes = 4 -> null
+      - ip_address              = "40.76.114.213" -> null
+      - ip_tags                 = {} -> null
+      - ip_version              = "IPv4" -> null
+      - location                = "eastus" -> null
+      - name                    = "pip-clientm-lab-d5-test" -> null
+      - resource_group_name     = "rg-clientm-lab-d5" -> null
+      - sku                     = "Standard" -> null
+      - sku_tier                = "Regional" -> null
+      - tags                    = {
+          - "environment" = "lab"
+          - "managed_by"  = "terraform"
+          - "project"     = "clientm-network-troubleshoot"
+        } -> null
+      - zones                   = [
+          - "2",
+        ] -> null
+        # (5 unchanged attributes hidden)
+    }
+
+  # azurerm_resource_group.lab will be destroyed
+  - resource "azurerm_resource_group" "lab" {
+      - id         = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5" -> null
+      - location   = "eastus" -> null
+      - name       = "rg-clientm-lab-d5" -> null
+      - tags       = {
+          - "environment" = "lab"
+          - "managed_by"  = "terraform"
+          - "project"     = "clientm-network-troubleshoot"
+        } -> null
+        # (1 unchanged attribute hidden)
+    }
+
+  # azurerm_route_table.dmz will be destroyed
+  - resource "azurerm_route_table" "dmz" {
+      - bgp_route_propagation_enabled = true -> null
+      - id                            = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/routeTables/rt-clientm-lab-d5-dmz" -> null
+      - location                      = "eastus" -> null
+      - name                          = "rt-clientm-lab-d5-dmz" -> null
+      - resource_group_name           = "rg-clientm-lab-d5" -> null
+      - route                         = [
+          - {
+              - address_prefix         = "0.0.0.0/0"
+              - name                   = "default-to-firewall"
+              - next_hop_in_ip_address = "10.0.5.4"
+              - next_hop_type          = "VirtualAppliance"
+            },
+        ] -> null
+      - subnets                       = [
+          - "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-dmz",
+        ] -> null
+      - tags                          = {
+          - "environment" = "lab"
+          - "managed_by"  = "terraform"
+          - "project"     = "clientm-network-troubleshoot"
+        } -> null
+    }
+
+  # azurerm_subnet.appgw will be destroyed
+  - resource "azurerm_subnet" "appgw" {
+      - address_prefixes                              = [
+          - "10.0.1.0/24",
+        ] -> null
+      - default_outbound_access_enabled               = true -> null
+      - id                                            = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-appgateway" -> null
+      - name                                          = "snet-appgateway" -> null
+      - private_endpoint_network_policies             = "Disabled" -> null
+      - private_link_service_network_policies_enabled = true -> null
+      - resource_group_name                           = "rg-clientm-lab-d5" -> null
+      - service_endpoint_policy_ids                   = [] -> null
+      - service_endpoints                             = [] -> null
+      - virtual_network_name                          = "vnet-clientm-lab-d5" -> null
+        # (1 unchanged attribute hidden)
+    }
+
+  # azurerm_subnet.dmz will be destroyed
+  - resource "azurerm_subnet" "dmz" {
+      - address_prefixes                              = [
+          - "10.0.3.0/24",
+        ] -> null
+      - default_outbound_access_enabled               = true -> null
+      - id                                            = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-dmz" -> null
+      - name                                          = "snet-dmz" -> null
+      - private_endpoint_network_policies             = "Disabled" -> null
+      - private_link_service_network_policies_enabled = true -> null
+      - resource_group_name                           = "rg-clientm-lab-d5" -> null
+      - service_endpoint_policy_ids                   = [] -> null
+      - service_endpoints                             = [] -> null
+      - virtual_network_name                          = "vnet-clientm-lab-d5" -> null
+        # (1 unchanged attribute hidden)
+    }
+
+  # azurerm_subnet.firewall will be destroyed
+  - resource "azurerm_subnet" "firewall" {
+      - address_prefixes                              = [
+          - "10.0.5.0/26",
+        ] -> null
+      - default_outbound_access_enabled               = true -> null
+      - id                                            = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/AzureFirewallSubnet" -> null
+      - name                                          = "AzureFirewallSubnet" -> null
+      - private_endpoint_network_policies             = "Disabled" -> null
+      - private_link_service_network_policies_enabled = true -> null
+      - resource_group_name                           = "rg-clientm-lab-d5" -> null
+      - service_endpoint_policy_ids                   = [] -> null
+      - service_endpoints                             = [] -> null
+      - virtual_network_name                          = "vnet-clientm-lab-d5" -> null
+        # (1 unchanged attribute hidden)
+    }
+
+  # azurerm_subnet.test will be destroyed
+  - resource "azurerm_subnet" "test" {
+      - address_prefixes                              = [
+          - "10.0.6.0/24",
+        ] -> null
+      - default_outbound_access_enabled               = true -> null
+      - id                                            = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-test" -> null
+      - name                                          = "snet-test" -> null
+      - private_endpoint_network_policies             = "Disabled" -> null
+      - private_link_service_network_policies_enabled = true -> null
+      - resource_group_name                           = "rg-clientm-lab-d5" -> null
+      - service_endpoint_policy_ids                   = [] -> null
+      - service_endpoints                             = [] -> null
+      - virtual_network_name                          = "vnet-clientm-lab-d5" -> null
+        # (1 unchanged attribute hidden)
+    }
+
+  # azurerm_subnet.trust will be destroyed
+  - resource "azurerm_subnet" "trust" {
+      - address_prefixes                              = [
+          - "10.0.2.0/24",
+        ] -> null
+      - default_outbound_access_enabled               = true -> null
+      - id                                            = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-trust" -> null
+      - name                                          = "snet-trust" -> null
+      - private_endpoint_network_policies             = "Disabled" -> null
+      - private_link_service_network_policies_enabled = true -> null
+      - resource_group_name                           = "rg-clientm-lab-d5" -> null
+      - service_endpoint_policy_ids                   = [] -> null
+      - service_endpoints                             = [] -> null
+      - virtual_network_name                          = "vnet-clientm-lab-d5" -> null
+        # (1 unchanged attribute hidden)
+    }
+
+  # azurerm_subnet.untrust will be destroyed
+  - resource "azurerm_subnet" "untrust" {
+      - address_prefixes                              = [
+          - "10.0.4.0/24",
+        ] -> null
+      - default_outbound_access_enabled               = true -> null
+      - id                                            = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-untrust" -> null
+      - name                                          = "snet-untrust" -> null
+      - private_endpoint_network_policies             = "Disabled" -> null
+      - private_link_service_network_policies_enabled = true -> null
+      - resource_group_name                           = "rg-clientm-lab-d5" -> null
+      - service_endpoint_policy_ids                   = [] -> null
+      - service_endpoints                             = [] -> null
+      - virtual_network_name                          = "vnet-clientm-lab-d5" -> null
+        # (1 unchanged attribute hidden)
+    }
+
+  # azurerm_subnet_nat_gateway_association.appgw will be destroyed
+  - resource "azurerm_subnet_nat_gateway_association" "appgw" {
+      - id             = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-appgateway" -> null
+      - nat_gateway_id = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/natGateways/natgw-clientm-lab-d5-appgw" -> null
+      - subnet_id      = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-appgateway" -> null
+    }
+
+  # azurerm_subnet_network_security_group_association.dmz will be destroyed
+  - resource "azurerm_subnet_network_security_group_association" "dmz" {
+      - id                        = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-dmz" -> null
+      - network_security_group_id = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkSecurityGroups/nsg-dmz" -> null
+      - subnet_id                 = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-dmz" -> null
+    }
+
+  # azurerm_subnet_network_security_group_association.test will be destroyed
+  - resource "azurerm_subnet_network_security_group_association" "test" {
+      - id                        = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-test" -> null
+      - network_security_group_id = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkSecurityGroups/nsg-test" -> null
+      - subnet_id                 = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-test" -> null
+    }
+
+  # azurerm_subnet_network_security_group_association.trust will be destroyed
+  - resource "azurerm_subnet_network_security_group_association" "trust" {
+      - id                        = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-trust" -> null
+      - network_security_group_id = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkSecurityGroups/nsg-trust" -> null
+      - subnet_id                 = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-trust" -> null
+    }
+
+  # azurerm_subnet_network_security_group_association.untrust will be destroyed
+  - resource "azurerm_subnet_network_security_group_association" "untrust" {
+      - id                        = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-untrust" -> null
+      - network_security_group_id = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkSecurityGroups/nsg-untrust" -> null
+      - subnet_id                 = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-untrust" -> null
+    }
+
+  # azurerm_subnet_route_table_association.dmz will be destroyed
+  - resource "azurerm_subnet_route_table_association" "dmz" {
+      - id             = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-dmz" -> null
+      - route_table_id = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/routeTables/rt-clientm-lab-d5-dmz" -> null
+      - subnet_id      = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-dmz" -> null
+    }
+
+  # azurerm_virtual_network.lab will be destroyed
+  - resource "azurerm_virtual_network" "lab" {
+      - address_space                  = [
+          - "10.0.0.0/16",
+        ] -> null
+      - dns_servers                    = [] -> null
+      - flow_timeout_in_minutes        = 0 -> null
+      - guid                           = "fefcff63-715d-4ced-bd40-d6c3be4487e0" -> null
+      - id                             = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5" -> null
+      - location                       = "eastus" -> null
+      - name                           = "vnet-clientm-lab-d5" -> null
+      - private_endpoint_vnet_policies = "Disabled" -> null
+      - resource_group_name            = "rg-clientm-lab-d5" -> null
+      - subnet                         = [
+          - {
+              - address_prefixes                              = [
+                  - "10.0.1.0/24",
+                ]
+              - default_outbound_access_enabled               = true
+              - delegation                                    = []
+              - id                                            = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-appgateway"
+              - name                                          = "snet-appgateway"
+              - private_endpoint_network_policies             = "Disabled"
+              - private_link_service_network_policies_enabled = true
+              - service_endpoint_policy_ids                   = []
+              - service_endpoints                             = []
+                # (2 unchanged attributes hidden)
+            },
+          - {
+              - address_prefixes                              = [
+                  - "10.0.2.0/24",
+                ]
+              - default_outbound_access_enabled               = true
+              - delegation                                    = []
+              - id                                            = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-trust"
+              - name                                          = "snet-trust"
+              - private_endpoint_network_policies             = "Disabled"
+              - private_link_service_network_policies_enabled = true
+              - security_group                                = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkSecurityGroups/nsg-trust"
+              - service_endpoint_policy_ids                   = []
+              - service_endpoints                             = []
+                # (1 unchanged attribute hidden)
+            },
+          - {
+              - address_prefixes                              = [
+                  - "10.0.3.0/24",
+                ]
+              - default_outbound_access_enabled               = true
+              - delegation                                    = []
+              - id                                            = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-dmz"
+              - name                                          = "snet-dmz"
+              - private_endpoint_network_policies             = "Disabled"
+              - private_link_service_network_policies_enabled = true
+              - route_table_id                                = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/routeTables/rt-clientm-lab-d5-dmz"
+              - security_group                                = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkSecurityGroups/nsg-dmz"
+              - service_endpoint_policy_ids                   = []
+              - service_endpoints                             = []
+            },
+          - {
+              - address_prefixes                              = [
+                  - "10.0.4.0/24",
+                ]
+              - default_outbound_access_enabled               = true
+              - delegation                                    = []
+              - id                                            = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-untrust"
+              - name                                          = "snet-untrust"
+              - private_endpoint_network_policies             = "Disabled"
+              - private_link_service_network_policies_enabled = true
+              - security_group                                = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkSecurityGroups/nsg-untrust"
+              - service_endpoint_policy_ids                   = []
+              - service_endpoints                             = []
+                # (1 unchanged attribute hidden)
+            },
+          - {
+              - address_prefixes                              = [
+                  - "10.0.5.0/26",
+                ]
+              - default_outbound_access_enabled               = true
+              - delegation                                    = []
+              - id                                            = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/AzureFirewallSubnet"
+              - name                                          = "AzureFirewallSubnet"
+              - private_endpoint_network_policies             = "Disabled"
+              - private_link_service_network_policies_enabled = true
+              - service_endpoint_policy_ids                   = []
+              - service_endpoints                             = []
+                # (2 unchanged attributes hidden)
+            },
+          - {
+              - address_prefixes                              = [
+                  - "10.0.6.0/24",
+                ]
+              - default_outbound_access_enabled               = true
+              - delegation                                    = []
+              - id                                            = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-test"
+              - name                                          = "snet-test"
+              - private_endpoint_network_policies             = "Disabled"
+              - private_link_service_network_policies_enabled = true
+              - security_group                                = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkSecurityGroups/nsg-test"
+              - service_endpoint_policy_ids                   = []
+              - service_endpoints                             = []
+                # (1 unchanged attribute hidden)
+            },
+        ] -> null
+      - tags                           = {
+          - "environment" = "lab"
+          - "managed_by"  = "terraform"
+          - "project"     = "clientm-network-troubleshoot"
+        } -> null
+        # (2 unchanged attributes hidden)
+    }
+
+  # azurerm_web_application_firewall_policy.appgw will be destroyed
+  - resource "azurerm_web_application_firewall_policy" "appgw" {
+      - http_listener_ids   = [] -> null
+      - id                  = "/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGatewayWebApplicationFirewallPolicies/waf-clientm-lab-d5" -> null
+      - location            = "eastus" -> null
+      - name                = "waf-clientm-lab-d5" -> null
+      - path_based_rule_ids = [] -> null
+      - resource_group_name = "rg-clientm-lab-d5" -> null
+      - tags                = {
+          - "environment" = "lab"
+          - "managed_by"  = "terraform"
+          - "project"     = "clientm-network-troubleshoot"
+        } -> null
+
+      - managed_rules {
+          - managed_rule_set {
+              - type    = "OWASP" -> null
+              - version = "3.2" -> null
+            }
+        }
+
+      - policy_settings {
+          - enabled                                   = true -> null
+          - file_upload_enforcement                   = false -> null
+          - file_upload_limit_in_mb                   = 100 -> null
+          - js_challenge_cookie_expiration_in_minutes = 30 -> null
+          - max_request_body_size_in_kb               = 128 -> null
+          - mode                                      = "Detection" -> null
+          - request_body_check                        = true -> null
+          - request_body_enforcement                  = true -> null
+          - request_body_inspect_limit_in_kb          = 128 -> null
+        }
+    }
+
+  # pkcs12_from_pem.listener will be destroyed
+  - resource "pkcs12_from_pem" "listener" {
+      - cert_pem        = (sensitive value) -> null
+      - encoding        = "modern2023" -> null
+      - id              = "e4f08d8150fb59490814cc8b4f0291655bc01442" -> null
+      - password        = (sensitive value) -> null
+      - private_key_pem = (sensitive value) -> null
+      - result          = (sensitive value) -> null
+    }
+
+  # random_password.pfx will be destroyed
+  - resource "random_password" "pfx" {
+      - bcrypt_hash = (sensitive value) -> null
+      - id          = "none" -> null
+      - length      = 24 -> null
+      - lower       = true -> null
+      - min_lower   = 0 -> null
+      - min_numeric = 0 -> null
+      - min_special = 0 -> null
+      - min_upper   = 0 -> null
+      - number      = true -> null
+      - numeric     = true -> null
+      - result      = (sensitive value) -> null
+      - special     = false -> null
+      - upper       = true -> null
+    }
+
+  # tls_private_key.listener will be destroyed
+  - resource "tls_private_key" "listener" {
+      - algorithm                     = "RSA" -> null
+      - ecdsa_curve                   = "P224" -> null
+      - id                            = "7c47f2b8b4da2d19f8aa266cf2127e44b40de748" -> null
+      - private_key_openssh           = (sensitive value) -> null
+      - private_key_pem               = (sensitive value) -> null
+      - private_key_pem_pkcs8         = (sensitive value) -> null
+      - public_key_fingerprint_md5    = "4c:c4:0e:7c:e5:b4:97:ae:22:36:2f:a4:a0:65:50:63" -> null
+      - public_key_fingerprint_sha256 = "SHA256:bTp1/+f42ACzkQHHiFQqMGxWHDYAqF5KYxWepjuMNpk" -> null
+      - public_key_openssh            = <<-EOT
+            ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCyYXmTwoz411fwIdFnC8+oExim4bOge0b/+vKnm+Sl7ZJppNitXgPCpopX7cOWdnNgzFek05/DIwgQMar6gUaQiIIuMUJEnxgsoJ2MJPjc4YaSiRmWsA8qq/6r3I3s+GOWYzqVNH1jSTBNQJmDnTILEd6SFhqYAQ+tciJieqEREiEjeyk2xXh53wSDe1xgWnUhFfQSS3zBtyMBDj3N+nFqR5L35Vlat7BIYEMDY/jg8Vrh3xDkaQNP6NgUZyYiFxQ6EW85rPlp8YgQPrGkl3KFtMzJOg3Chq85OCQeap2xIs6X+xJYy8/En6oZOdUhdbwoZmyuAF8fYwM87IP6wo8f
+        EOT -> null
+      - public_key_pem                = <<-EOT
+            -----BEGIN PUBLIC KEY-----
+            MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsmF5k8KM+NdX8CHRZwvP
+            qBMYpuGzoHtG//ryp5vkpe2SaaTYrV4DwqaKV+3DlnZzYMxXpNOfwyMIEDGq+oFG
+            kIiCLjFCRJ8YLKCdjCT43OGGkokZlrAPKqv+q9yN7PhjlmM6lTR9Y0kwTUCZg50y
+            CxHekhYamAEPrXIiYnqhERIhI3spNsV4ed8Eg3tcYFp1IRX0Ekt8wbcjAQ49zfpx
+            akeS9+VZWrewSGBDA2P44PFa4d8Q5GkDT+jYFGcmIhcUOhFvOaz5afGIED6xpJdy
+            hbTMyToNwoavOTgkHmqdsSLOl/sSWMvPxJ+qGTnVIXW8KGZsrgBfH2MDPOyD+sKP
+            HwIDAQAB
+            -----END PUBLIC KEY-----
+        EOT -> null
+      - rsa_bits                      = 2048 -> null
+    }
+
+  # tls_self_signed_cert.listener will be destroyed
+  - resource "tls_self_signed_cert" "listener" {
+      - allowed_uses          = [
+          - "key_encipherment",
+          - "digital_signature",
+          - "server_auth",
+        ] -> null
+      - cert_pem              = <<-EOT
+            -----BEGIN CERTIFICATE-----
+            MIIDYjCCAkqgAwIBAgIQU3oe44JL2xLE6Q1KrAIL/zANBgkqhkiG9w0BAQsFADA9
+            MRQwEgYDVQQKEwtDbGllbnRtIExhYjElMCMGA1UEAxMcY29ubmVjdC5jbGllbnRt
+            d29ya3NwYWNlLmNvbTAeFw0yNjA2MjIxNDUyMzZaFw0yNzA2MjIxNDUyMzZaMD0x
+            FDASBgNVBAoTC0NsaWVudG0gTGFiMSUwIwYDVQQDExxjb25uZWN0LmNsaWVudG13
+            b3Jrc3BhY2UuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsmF5
+            k8KM+NdX8CHRZwvPqBMYpuGzoHtG//ryp5vkpe2SaaTYrV4DwqaKV+3DlnZzYMxX
+            pNOfwyMIEDGq+oFGkIiCLjFCRJ8YLKCdjCT43OGGkokZlrAPKqv+q9yN7PhjlmM6
+            lTR9Y0kwTUCZg50yCxHekhYamAEPrXIiYnqhERIhI3spNsV4ed8Eg3tcYFp1IRX0
+            Ekt8wbcjAQ49zfpxakeS9+VZWrewSGBDA2P44PFa4d8Q5GkDT+jYFGcmIhcUOhFv
+            Oaz5afGIED6xpJdyhbTMyToNwoavOTgkHmqdsSLOl/sSWMvPxJ+qGTnVIXW8KGZs
+            rgBfH2MDPOyD+sKPHwIDAQABo14wXDAOBgNVHQ8BAf8EBAMCBaAwEwYDVR0lBAww
+            CgYIKwYBBQUHAwEwDAYDVR0TAQH/BAIwADAnBgNVHREEIDAeghxjb25uZWN0LmNs
+            aWVudG13b3Jrc3BhY2UuY29tMA0GCSqGSIb3DQEBCwUAA4IBAQBxnDqNoKPPalvk
+            oKjLpYlvr5PxvBSeOADTe8HjrKgigZCPsVlvBqogtGKgwwQmY8sBiey7DD9F3QR5
+            Y5I4gcUgdUyo1R5piTffip2BKch4hWSOgdmhcFmWdkEX7vxvZVdtAqtYHv1+s/g0
+            cA4fbpzG3i1EIc8ALu4BUrEq71lmYFZZjuY98nZ4fyMG8emBidn/0XMyeu2tnmbY
+            9e0GbVeJSZD/GoBYtTgbBGvyV5g6UyCt/ZbJ8xCBsSXIdkz7rtTzbP5CafaN4Hs0
+            LfowZUCREF1t15olV/ANm4WkJfEcVPuIGVGNaJbrs1GQCb50UZrFGkwqXJgZ3lXh
+            LIDSxKBE
+            -----END CERTIFICATE-----
+        EOT -> null
+      - dns_names             = [
+          - "connect.clientmworkspace.com",
+        ] -> null
+      - early_renewal_hours   = 720 -> null
+      - id                    = "110960010364295021967550043324219001855" -> null
+      - is_ca_certificate     = false -> null
+      - key_algorithm         = "RSA" -> null
+      - private_key_pem       = (sensitive value) -> null
+      - ready_for_renewal     = false -> null
+      - set_authority_key_id  = false -> null
+      - set_subject_key_id    = false -> null
+      - validity_end_time     = "2027-06-22T10:52:36.107912-04:00" -> null
+      - validity_period_hours = 8760 -> null
+      - validity_start_time   = "2026-06-22T10:52:36.107912-04:00" -> null
+
+      - subject {
+          - common_name  = "connect.clientmworkspace.com" -> null
+          - organization = "Clientm Lab" -> null
+        }
+    }
+
+Plan: 0 to add, 0 to change, 43 to destroy.
+
+Changes to Outputs:
+  - appgw_private_ip      = "10.0.1.10" -> null
+  - appgw_public_ip       = "20.242.195.8" -> null
+  - firewall_private_ip   = "10.0.5.4" -> null
+  - firewall_public_ip    = "20.81.61.132" -> null
+  - natgw_public_ip       = "20.124.99.66" -> null
+  - nva_dmz_ip            = "10.0.3.10" -> null
+  - nva_public_ip         = "20.55.26.168" -> null
+  - nva_trust_ip          = "10.0.2.10" -> null
+  - test_client_public_ip = "40.76.114.213" -> null
+  - test_commands         = <<-EOT
+        TEST=40.76.114.213     # in-VNet test client (SSH here)
+        APPGW_PUB=20.242.195.8   # App GW PUBLIC frontend
+        APPGW_PRIV=10.0.1.10                 # App GW PRIVATE frontend (in-VNet only)
+        NVA=20.55.26.168
+        FW=20.81.61.132
+        
+        # --- Inbound via PUBLIC frontend (from your laptop) ---
+        curl -kv --resolve connect.clientmworkspace.com:443:$APPGW_PUB \
+          https://connect.clientmworkspace.com/healthz                # expect 200 OK
+        
+        # --- Inbound via PRIVATE frontend (from INSIDE the VNet — the variant under test) ---
+        ssh azureuser@$TEST "curl -sk --resolve connect.clientmworkspace.com:443:10.0.1.10 \
+          https://connect.clientmworkspace.com/healthz"               # expect 200 OK
+        ssh azureuser@$TEST "curl -sk --resolve connect.clientmworkspace.com:443:10.0.1.10 \
+          https://connect.clientmworkspace.com/whoami"                # remote_addr = NVA DMZ 10.0.3.10
+        
+        # --- Observe where the probe/backend traffic actually lands on the NVA ---
+        ssh azureuser@$NVA "sudo nva-trace"            # watch trust-NIC hits from the App GW
+        
+        # --- Management SSH (still via the NVA) ---
+        ssh azureuser@$NVA
+        ssh -J azureuser@$NVA azureuser@10.0.3.100
+        
+        # --- Egress (on the webserver, via jump) — Azure Firewall ---
+        curl -s https://api.ipify.org ; echo                          # expect == $FW (firewall SNAT)
+        curl -s http://azure.archive.ubuntu.com/ -o /dev/null -w '%{http_code}\n'   # expect 200 (allow-listed)
+        curl -s --max-time 10 https://example.com/ -o /dev/null -w '%{http_code}\n' # expect 000 (FQDN denied)
+    EOT -> null
+  - webserver_ip          = "10.0.3.100" -> null
+azurerm_subnet_network_security_group_association.untrust: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-untrust]
+azurerm_subnet_nat_gateway_association.appgw: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-appgateway]
+azurerm_subnet_network_security_group_association.test: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-test]
+azurerm_subnet_network_security_group_association.trust: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-trust]
+azurerm_subnet_network_security_group_association.dmz: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-dmz]
+azurerm_nat_gateway_public_ip_association.appgw: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/natGateways/natgw-clientm-lab-d5-appgw|/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/publicIPAddresses/pip-clientm-lab-d5-natgw]
+azurerm_linux_virtual_machine.test: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Compute/virtualMachines/vm-test-client]
+azurerm_linux_virtual_machine.webserver: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Compute/virtualMachines/vm-webserver]
+azurerm_application_gateway.main: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5]
+azurerm_subnet_network_security_group_association.test: Destruction complete after 5s
+azurerm_network_security_group.test: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkSecurityGroups/nsg-test]
+azurerm_subnet_network_security_group_association.trust: Destruction complete after 9s
+azurerm_network_security_group.trust: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkSecurityGroups/nsg-trust]
+azurerm_linux_virtual_machine.webserver: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...t.Compute/virtualMachines/vm-webserver, 00m10s elapsed]
+azurerm_subnet_network_security_group_association.untrust: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...et-clientm-lab-d5/subnets/snet-untrust, 00m10s elapsed]
+azurerm_subnet_network_security_group_association.dmz: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...s/vnet-clientm-lab-d5/subnets/snet-dmz, 00m10s elapsed]
+azurerm_linux_virtual_machine.test: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...Compute/virtualMachines/vm-test-client, 00m10s elapsed]
+azurerm_subnet_nat_gateway_association.appgw: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...clientm-lab-d5/subnets/snet-appgateway, 00m10s elapsed]
+azurerm_nat_gateway_public_ip_association.appgw: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...icIPAddresses/pip-clientm-lab-d5-natgw, 00m10s elapsed]
+azurerm_application_gateway.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...plicationGateways/appgw-clientm-lab-d5, 00m10s elapsed]
+azurerm_nat_gateway_public_ip_association.appgw: Destruction complete after 11s
+azurerm_public_ip.natgw: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/publicIPAddresses/pip-clientm-lab-d5-natgw]
+azurerm_subnet_nat_gateway_association.appgw: Destruction complete after 13s
+azurerm_nat_gateway.appgw: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/natGateways/natgw-clientm-lab-d5-appgw]
+azurerm_network_security_group.test: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...Network/networkSecurityGroups/nsg-test, 00m10s elapsed]
+azurerm_network_security_group.test: Destruction complete after 11s
+azurerm_subnet_network_security_group_association.untrust: Destruction complete after 17s
+azurerm_network_security_group.untrust: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkSecurityGroups/nsg-untrust]
+azurerm_network_security_group.trust: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...etwork/networkSecurityGroups/nsg-trust, 00m10s elapsed]
+azurerm_application_gateway.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...plicationGateways/appgw-clientm-lab-d5, 00m20s elapsed]
+azurerm_subnet_network_security_group_association.dmz: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...s/vnet-clientm-lab-d5/subnets/snet-dmz, 00m20s elapsed]
+azurerm_linux_virtual_machine.test: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...Compute/virtualMachines/vm-test-client, 00m20s elapsed]
+azurerm_linux_virtual_machine.webserver: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...t.Compute/virtualMachines/vm-webserver, 00m20s elapsed]
+azurerm_network_security_group.trust: Destruction complete after 11s
+azurerm_public_ip.natgw: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...icIPAddresses/pip-clientm-lab-d5-natgw, 00m10s elapsed]
+azurerm_subnet_network_security_group_association.dmz: Destruction complete after 22s
+azurerm_network_security_group.dmz: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkSecurityGroups/nsg-dmz]
+azurerm_public_ip.natgw: Destruction complete after 11s
+azurerm_linux_virtual_machine.webserver: Destruction complete after 23s
+azurerm_subnet_route_table_association.dmz: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-dmz]
+azurerm_network_interface.webserver: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkInterfaces/nic-webserver]
+azurerm_firewall_policy_rule_collection_group.egress: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/firewallPolicies/fwpol-clientm-lab-d5/ruleCollectionGroups/rcg-egress]
+azurerm_linux_virtual_machine.nva: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Compute/virtualMachines/vm-nva]
+azurerm_nat_gateway.appgw: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...natGateways/natgw-clientm-lab-d5-appgw, 00m10s elapsed]
+azurerm_nat_gateway.appgw: Destruction complete after 11s
+azurerm_network_security_group.untrust: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...work/networkSecurityGroups/nsg-untrust, 00m10s elapsed]
+azurerm_network_security_group.untrust: Destruction complete after 11s
+azurerm_application_gateway.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...plicationGateways/appgw-clientm-lab-d5, 00m30s elapsed]
+azurerm_linux_virtual_machine.test: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...Compute/virtualMachines/vm-test-client, 00m30s elapsed]
+azurerm_network_security_group.dmz: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-....Network/networkSecurityGroups/nsg-dmz, 00m10s elapsed]
+azurerm_linux_virtual_machine.nva: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...crosoft.Compute/virtualMachines/vm-nva, 00m10s elapsed]
+azurerm_network_interface.webserver: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...etwork/networkInterfaces/nic-webserver, 00m10s elapsed]
+azurerm_firewall_policy_rule_collection_group.egress: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...lab-d5/ruleCollectionGroups/rcg-egress, 00m10s elapsed]
+azurerm_subnet_route_table_association.dmz: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...s/vnet-clientm-lab-d5/subnets/snet-dmz, 00m10s elapsed]
+azurerm_network_security_group.dmz: Destruction complete after 11s
+azurerm_linux_virtual_machine.test: Destruction complete after 33s
+azurerm_network_interface.test: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkInterfaces/nic-test]
+azurerm_network_interface.webserver: Destruction complete after 11s
+azurerm_subnet_route_table_association.dmz: Destruction complete after 15s
+azurerm_route_table.dmz: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/routeTables/rt-clientm-lab-d5-dmz]
+azurerm_application_gateway.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...plicationGateways/appgw-clientm-lab-d5, 00m40s elapsed]
+azurerm_firewall_policy_rule_collection_group.egress: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...lab-d5/ruleCollectionGroups/rcg-egress, 00m20s elapsed]
+azurerm_linux_virtual_machine.nva: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...crosoft.Compute/virtualMachines/vm-nva, 00m20s elapsed]
+azurerm_network_interface.test: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...oft.Network/networkInterfaces/nic-test, 00m10s elapsed]
+azurerm_route_table.dmz: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...work/routeTables/rt-clientm-lab-d5-dmz, 00m10s elapsed]
+azurerm_network_interface.test: Destruction complete after 16s
+azurerm_subnet.test: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-test]
+azurerm_public_ip.test: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/publicIPAddresses/pip-clientm-lab-d5-test]
+azurerm_route_table.dmz: Destruction complete after 11s
+azurerm_firewall.main: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/azureFirewalls/afw-clientm-lab-d5]
+azurerm_application_gateway.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...plicationGateways/appgw-clientm-lab-d5, 00m50s elapsed]
+azurerm_firewall_policy_rule_collection_group.egress: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...lab-d5/ruleCollectionGroups/rcg-egress, 00m30s elapsed]
+azurerm_linux_virtual_machine.nva: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...crosoft.Compute/virtualMachines/vm-nva, 00m30s elapsed]
+azurerm_linux_virtual_machine.nva: Destruction complete after 33s
+azurerm_network_interface.nva_dmz: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkInterfaces/nic-nva-dmz]
+azurerm_network_interface.nva_trust: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkInterfaces/nic-nva-trust]
+azurerm_network_interface.nva_untrust: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkInterfaces/nic-nva-untrust]
+azurerm_public_ip.test: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...licIPAddresses/pip-clientm-lab-d5-test, 00m10s elapsed]
+azurerm_subnet.test: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-.../vnet-clientm-lab-d5/subnets/snet-test, 00m10s elapsed]
+azurerm_firewall.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...work/azureFirewalls/afw-clientm-lab-d5, 00m10s elapsed]
+azurerm_subnet.test: Destruction complete after 11s
+azurerm_application_gateway.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...plicationGateways/appgw-clientm-lab-d5, 01m00s elapsed]
+azurerm_public_ip.test: Destruction complete after 11s
+azurerm_firewall_policy_rule_collection_group.egress: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...lab-d5/ruleCollectionGroups/rcg-egress, 00m40s elapsed]
+azurerm_network_interface.nva_trust: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...etwork/networkInterfaces/nic-nva-trust, 00m10s elapsed]
+azurerm_network_interface.nva_dmz: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-....Network/networkInterfaces/nic-nva-dmz, 00m10s elapsed]
+azurerm_network_interface.nva_untrust: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...work/networkInterfaces/nic-nva-untrust, 00m10s elapsed]
+azurerm_firewall.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...work/azureFirewalls/afw-clientm-lab-d5, 00m20s elapsed]
+azurerm_application_gateway.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...plicationGateways/appgw-clientm-lab-d5, 01m10s elapsed]
+azurerm_network_interface.nva_untrust: Destruction complete after 15s
+azurerm_subnet.untrust: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-untrust]
+azurerm_public_ip.nva: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/publicIPAddresses/pip-clientm-lab-d5-nva]
+azurerm_firewall_policy_rule_collection_group.egress: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...lab-d5/ruleCollectionGroups/rcg-egress, 00m50s elapsed]
+azurerm_network_interface.nva_dmz: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-....Network/networkInterfaces/nic-nva-dmz, 00m20s elapsed]
+azurerm_network_interface.nva_trust: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...etwork/networkInterfaces/nic-nva-trust, 00m20s elapsed]
+azurerm_firewall.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...work/azureFirewalls/afw-clientm-lab-d5, 00m30s elapsed]
+azurerm_application_gateway.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...plicationGateways/appgw-clientm-lab-d5, 01m20s elapsed]
+azurerm_subnet.untrust: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...et-clientm-lab-d5/subnets/snet-untrust, 00m10s elapsed]
+azurerm_public_ip.nva: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...blicIPAddresses/pip-clientm-lab-d5-nva, 00m10s elapsed]
+azurerm_public_ip.nva: Destruction complete after 11s
+azurerm_network_interface.nva_dmz: Destruction complete after 26s
+azurerm_subnet.dmz: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-dmz]
+azurerm_firewall_policy_rule_collection_group.egress: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...lab-d5/ruleCollectionGroups/rcg-egress, 01m00s elapsed]
+azurerm_network_interface.nva_trust: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...etwork/networkInterfaces/nic-nva-trust, 00m30s elapsed]
+azurerm_firewall.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...work/azureFirewalls/afw-clientm-lab-d5, 00m40s elapsed]
+azurerm_application_gateway.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...plicationGateways/appgw-clientm-lab-d5, 01m30s elapsed]
+azurerm_subnet.untrust: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...et-clientm-lab-d5/subnets/snet-untrust, 00m20s elapsed]
+azurerm_subnet.dmz: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...s/vnet-clientm-lab-d5/subnets/snet-dmz, 00m10s elapsed]
+azurerm_network_interface.nva_trust: Destruction complete after 37s
+azurerm_firewall_policy_rule_collection_group.egress: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...lab-d5/ruleCollectionGroups/rcg-egress, 01m10s elapsed]
+azurerm_subnet.trust: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-trust]
+azurerm_firewall.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...work/azureFirewalls/afw-clientm-lab-d5, 00m50s elapsed]
+azurerm_application_gateway.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...plicationGateways/appgw-clientm-lab-d5, 01m40s elapsed]
+azurerm_subnet.untrust: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...et-clientm-lab-d5/subnets/snet-untrust, 00m30s elapsed]
+azurerm_subnet.dmz: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...s/vnet-clientm-lab-d5/subnets/snet-dmz, 00m20s elapsed]
+azurerm_firewall_policy_rule_collection_group.egress: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...lab-d5/ruleCollectionGroups/rcg-egress, 01m20s elapsed]
+azurerm_subnet.trust: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...vnet-clientm-lab-d5/subnets/snet-trust, 00m10s elapsed]
+azurerm_subnet.untrust: Destruction complete after 33s
+azurerm_firewall.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...work/azureFirewalls/afw-clientm-lab-d5, 01m00s elapsed]
+azurerm_application_gateway.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...plicationGateways/appgw-clientm-lab-d5, 01m50s elapsed]
+azurerm_subnet.dmz: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...s/vnet-clientm-lab-d5/subnets/snet-dmz, 00m30s elapsed]
+azurerm_firewall_policy_rule_collection_group.egress: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...lab-d5/ruleCollectionGroups/rcg-egress, 01m30s elapsed]
+azurerm_subnet.trust: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...vnet-clientm-lab-d5/subnets/snet-trust, 00m20s elapsed]
+azurerm_subnet.dmz: Destruction complete after 32s
+azurerm_firewall.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...work/azureFirewalls/afw-clientm-lab-d5, 01m10s elapsed]
+azurerm_application_gateway.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...plicationGateways/appgw-clientm-lab-d5, 02m00s elapsed]
+azurerm_firewall_policy_rule_collection_group.egress: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...lab-d5/ruleCollectionGroups/rcg-egress, 01m40s elapsed]
+azurerm_subnet.trust: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...vnet-clientm-lab-d5/subnets/snet-trust, 00m30s elapsed]
+azurerm_subnet.trust: Destruction complete after 32s
+azurerm_firewall.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...work/azureFirewalls/afw-clientm-lab-d5, 01m20s elapsed]
+azurerm_application_gateway.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...plicationGateways/appgw-clientm-lab-d5, 02m10s elapsed]
+azurerm_firewall_policy_rule_collection_group.egress: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...lab-d5/ruleCollectionGroups/rcg-egress, 01m50s elapsed]
+azurerm_firewall.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...work/azureFirewalls/afw-clientm-lab-d5, 01m30s elapsed]
+azurerm_application_gateway.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...plicationGateways/appgw-clientm-lab-d5, 02m20s elapsed]
+azurerm_firewall_policy_rule_collection_group.egress: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...lab-d5/ruleCollectionGroups/rcg-egress, 02m00s elapsed]
+azurerm_firewall.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...work/azureFirewalls/afw-clientm-lab-d5, 01m40s elapsed]
+azurerm_application_gateway.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...plicationGateways/appgw-clientm-lab-d5, 02m30s elapsed]
+azurerm_firewall_policy_rule_collection_group.egress: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...lab-d5/ruleCollectionGroups/rcg-egress, 02m10s elapsed]
+azurerm_firewall.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...work/azureFirewalls/afw-clientm-lab-d5, 01m50s elapsed]
+azurerm_application_gateway.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...plicationGateways/appgw-clientm-lab-d5, 02m40s elapsed]
+azurerm_firewall_policy_rule_collection_group.egress: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...lab-d5/ruleCollectionGroups/rcg-egress, 02m20s elapsed]
+azurerm_firewall.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...work/azureFirewalls/afw-clientm-lab-d5, 02m00s elapsed]
+azurerm_application_gateway.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...plicationGateways/appgw-clientm-lab-d5, 02m50s elapsed]
+azurerm_firewall_policy_rule_collection_group.egress: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...lab-d5/ruleCollectionGroups/rcg-egress, 02m30s elapsed]
+azurerm_firewall.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...work/azureFirewalls/afw-clientm-lab-d5, 02m10s elapsed]
+azurerm_application_gateway.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...plicationGateways/appgw-clientm-lab-d5, 03m00s elapsed]
+azurerm_firewall_policy_rule_collection_group.egress: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...lab-d5/ruleCollectionGroups/rcg-egress, 02m40s elapsed]
+azurerm_firewall.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...work/azureFirewalls/afw-clientm-lab-d5, 02m20s elapsed]
+azurerm_application_gateway.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...plicationGateways/appgw-clientm-lab-d5, 03m10s elapsed]
+azurerm_firewall_policy_rule_collection_group.egress: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...lab-d5/ruleCollectionGroups/rcg-egress, 02m50s elapsed]
+azurerm_firewall.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...work/azureFirewalls/afw-clientm-lab-d5, 02m30s elapsed]
+azurerm_application_gateway.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...plicationGateways/appgw-clientm-lab-d5, 03m20s elapsed]
+azurerm_firewall_policy_rule_collection_group.egress: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...lab-d5/ruleCollectionGroups/rcg-egress, 03m00s elapsed]
+azurerm_firewall.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...work/azureFirewalls/afw-clientm-lab-d5, 02m40s elapsed]
+azurerm_application_gateway.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...plicationGateways/appgw-clientm-lab-d5, 03m30s elapsed]
+azurerm_firewall_policy_rule_collection_group.egress: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...lab-d5/ruleCollectionGroups/rcg-egress, 03m10s elapsed]
+azurerm_firewall.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...work/azureFirewalls/afw-clientm-lab-d5, 02m50s elapsed]
+azurerm_application_gateway.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...plicationGateways/appgw-clientm-lab-d5, 03m40s elapsed]
+azurerm_firewall_policy_rule_collection_group.egress: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...lab-d5/ruleCollectionGroups/rcg-egress, 03m20s elapsed]
+azurerm_firewall.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...work/azureFirewalls/afw-clientm-lab-d5, 03m00s elapsed]
+azurerm_application_gateway.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...plicationGateways/appgw-clientm-lab-d5, 03m50s elapsed]
+azurerm_firewall_policy_rule_collection_group.egress: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...lab-d5/ruleCollectionGroups/rcg-egress, 03m30s elapsed]
+azurerm_firewall.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...work/azureFirewalls/afw-clientm-lab-d5, 03m10s elapsed]
+azurerm_application_gateway.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...plicationGateways/appgw-clientm-lab-d5, 04m00s elapsed]
+azurerm_firewall_policy_rule_collection_group.egress: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...lab-d5/ruleCollectionGroups/rcg-egress, 03m40s elapsed]
+azurerm_firewall.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...work/azureFirewalls/afw-clientm-lab-d5, 03m20s elapsed]
+azurerm_application_gateway.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...plicationGateways/appgw-clientm-lab-d5, 04m10s elapsed]
+azurerm_firewall_policy_rule_collection_group.egress: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...lab-d5/ruleCollectionGroups/rcg-egress, 03m50s elapsed]
+azurerm_firewall.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...work/azureFirewalls/afw-clientm-lab-d5, 03m30s elapsed]
+azurerm_application_gateway.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...plicationGateways/appgw-clientm-lab-d5, 04m20s elapsed]
+azurerm_firewall_policy_rule_collection_group.egress: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...lab-d5/ruleCollectionGroups/rcg-egress, 04m00s elapsed]
+azurerm_firewall.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...work/azureFirewalls/afw-clientm-lab-d5, 03m40s elapsed]
+azurerm_application_gateway.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...plicationGateways/appgw-clientm-lab-d5, 04m30s elapsed]
+azurerm_firewall_policy_rule_collection_group.egress: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...lab-d5/ruleCollectionGroups/rcg-egress, 04m10s elapsed]
+azurerm_firewall_policy_rule_collection_group.egress: Destruction complete after 4m10s
+azurerm_firewall.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...work/azureFirewalls/afw-clientm-lab-d5, 03m50s elapsed]
+azurerm_application_gateway.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...plicationGateways/appgw-clientm-lab-d5, 04m40s elapsed]
+azurerm_firewall.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...work/azureFirewalls/afw-clientm-lab-d5, 04m00s elapsed]
+azurerm_application_gateway.main: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...plicationGateways/appgw-clientm-lab-d5, 04m50s elapsed]

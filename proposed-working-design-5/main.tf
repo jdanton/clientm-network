@@ -68,3 +68,12 @@ resource "azurerm_subnet" "firewall" {
   virtual_network_name = azurerm_virtual_network.lab.name
   address_prefixes     = [var.subnet_firewall_cidr]
 }
+
+# In-VNet test client subnet — the App Gateway frontend is now PRIVATE, so the
+# only way to exercise the listener is from inside the VNet.
+resource "azurerm_subnet" "test" {
+  name                 = "snet-test"
+  resource_group_name  = azurerm_resource_group.lab.name
+  virtual_network_name = azurerm_virtual_network.lab.name
+  address_prefixes     = [var.subnet_test_cidr]
+}

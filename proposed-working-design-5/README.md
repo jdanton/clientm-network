@@ -15,6 +15,10 @@ by a single 3-NIC NVA.** No Internal LB → no asymmetric routing problem; the
 NVA has explicit zone interfaces; Azure Firewall handles egress exactly as
 design-2 and design-3 already do.
 
+> 📐 **Detailed network diagram:** [`network-diagram.svg`](network-diagram.svg)
+> — full topology with subnets, IPs, NIC zones, and every traffic flow
+> (inbound public/private, backend DNAT chain, egress, management).
+
 | | design-2 | design-3 | design-4 | **design-5 (this)** |
 |---|---|---|---|---|
 | Inbound firewall | active/active NVAs + Internal LB | Azure Firewall (1 NIC) | single NVA (3 NICs) | **single NVA (3 NICs)** |
@@ -30,13 +34,16 @@ design-2 and design-3 already do.
 ## Topology
 
 ```
-Internet
-   │  HTTPS:443
-   ▼
+Internet                         in-VNet test client (snet-test 10.0.6.0/24)
+   │  HTTPS:443                      │  HTTPS:443
+   ▼                                 ▼
 ┌──────────────────────────────────────┐
-│ App Gateway WAF_v2 (public IP)       │  snet-appgateway 10.0.1.0/24
+│ App Gateway WAF_v2                    │  snet-appgateway 10.0.1.0/24
+│  dual frontend:                       │  (+ NAT Gateway for App GW egress)
+│   • frontend-public  (PIP)            │
+│   • frontend-private (10.0.1.10)      │
 └────────────────┬─────────────────────┘
-                 │ backend = NVA trust IP 10.0.2.10
+                 │ backend = NVA trust IP 10.0.2.10  (same for both frontends)
                  ▼
 ┌─────────────────────────────────────────────────────────┐
 │   Linux NVA  (single VM, 3 NICs, iptables)              │
@@ -93,6 +100,35 @@ default Internet — it does NOT transit Azure Firewall.
 - **Egress:** same Azure Firewall pattern as design-2 and design-3. The firewall
   is a managed cluster behind one private IP whose instances share a session
   table — return traffic finds the flow no matter which backend instance sees it.
+
+## Dual-frontend App Gateway (private IP variant)
+
+The App Gateway exposes **two frontends** on :443, both routing to the same NVA
+backend:
+
+| Frontend | Reachable from | Tested with |
+|---|---|---|
+| `frontend-public` (public IP) | Internet | `validate-flows.sh` / laptop |
+| `frontend-private` (`10.0.1.10`) | inside the VNet only | `vm-test-client` in `snet-test` |
+
+This came out of a client question: *"does putting a private IP on the App
+Gateway change where the backend health probe routes?"* Answer, verified live
+(see [VERIFIED.md](VERIFIED.md)): **no.** The probe originates from the gateway
+instances and targets the **backend pool member** (the NVA trust IP) regardless
+of which frontend serves clients. The frontend type is orthogonal to probe
+routing — what determines whether probes reach a firewall is the **backend pool
+target**, not the frontend. See the standalone
+[`../appgw-probe-firewall-runbook.md`](../appgw-probe-firewall-runbook.md).
+
+Two supporting notes:
+
+- **Private-only is *not* available on WAF_v2** without the subscription feature
+  `Microsoft.Network/EnableApplicationGatewayNetworkIsolation`. With it
+  unregistered, Azure rejects a no-public-IP WAF_v2 gateway, so this design uses
+  a **dual** frontend (public kept, private added).
+- A private-capable App GW subnet loses default outbound, so a **NAT Gateway**
+  is attached to `snet-appgateway` for the gateway's control-plane egress
+  (CRL/OCSP).
 
 ## Cost (US East, 24/7)
 
@@ -172,4 +208,16 @@ terraform destroy
 | `route-tables.tf` | DMZ UDR `0.0.0.0/0` → **Azure Firewall private IP** (not NVA dmz IP) |
 | `nva.yaml.tftpl` | **removed** the L4 egress allow-list — dead code now (egress bypasses the NVA) |
 | `outputs.tf` | + firewall public/private IPs |
-| `appgateway.tf`, `nva.tf`, `webserver.tf`, `webserver.yaml.tftpl`, `network-security.tf`, `terraform.tfvars.example`, `versions.tf` | unchanged from design-4 |
+| `nva.tf`, `webserver.tf`, `webserver.yaml.tftpl`, `terraform.tfvars.example`, `versions.tf` | unchanged from design-4 |
+
+### Added for the private-frontend retest (2026-06-23)
+
+| File | Change |
+|---|---|
+| `appgateway.tf` | App GW now has a **dual frontend** — `frontend-public` + `frontend-private` (`10.0.1.10`), each with its own :443 listener and routing rule → same NVA backend |
+| `natgw.tf` | **new** — NAT Gateway + PIP on `snet-appgateway` (App GW control-plane egress) |
+| `test-client.tf` | **new** — `vm-test-client` + NSG + PIP in `snet-test` to exercise the private listener |
+| `main.tf` | + `snet-test` (`10.0.6.0/24`) |
+| `variables.tf` | + `subnet_test_cidr`, `appgw_private_ip` |
+| `outputs.tf` | + `appgw_private_ip`, `test_client_public_ip`, `natgw_public_ip`; `test_commands` covers both frontends |
+| `network-diagram.svg` | **new** — detailed SVG topology diagram |

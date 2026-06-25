@@ -1,0 +1,54 @@
+azurerm_public_ip.appgw: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/publicIPAddresses/pip-clientm-lab-d5-appgw]
+azurerm_linux_virtual_machine.webserver: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Compute/virtualMachines/vm-webserver]
+azurerm_subnet.test: Creating...
+azurerm_public_ip.test: Creating...
+azurerm_nat_gateway.appgw: Creating...
+azurerm_network_security_group.test: Creating...
+azurerm_public_ip.natgw: Creating...
+azurerm_public_ip.test: Creation complete after 3s [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/publicIPAddresses/pip-clientm-lab-d5-test]
+azurerm_public_ip.natgw: Creation complete after 3s [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/publicIPAddresses/pip-clientm-lab-d5-natgw]
+azurerm_network_security_group.test: Creation complete after 4s [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkSecurityGroups/nsg-test]
+azurerm_subnet.test: Creation complete after 6s [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-test]
+azurerm_subnet_network_security_group_association.test: Creating...
+azurerm_network_interface.test: Creating...
+azurerm_nat_gateway.appgw: Still creating... [00m10s elapsed]
+azurerm_linux_virtual_machine.webserver: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...t.Compute/virtualMachines/vm-webserver, 00m10s elapsed]
+azurerm_subnet_network_security_group_association.test: Creation complete after 5s [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-test]
+azurerm_nat_gateway.appgw: Creation complete after 12s [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/natGateways/natgw-clientm-lab-d5-appgw]
+azurerm_subnet_nat_gateway_association.appgw: Creating...
+azurerm_nat_gateway_public_ip_association.appgw: Creating...
+azurerm_network_interface.test: Creation complete after 8s [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/networkInterfaces/nic-test]
+azurerm_linux_virtual_machine.test: Creating...
+azurerm_subnet_nat_gateway_association.appgw: Creation complete after 8s [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/virtualNetworks/vnet-clientm-lab-d5/subnets/snet-appgateway]
+azurerm_linux_virtual_machine.webserver: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...t.Compute/virtualMachines/vm-webserver, 00m20s elapsed]
+azurerm_nat_gateway_public_ip_association.appgw: Still creating... [00m10s elapsed]
+azurerm_linux_virtual_machine.test: Still creating... [00m10s elapsed]
+azurerm_nat_gateway_public_ip_association.appgw: Creation complete after 13s [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/natGateways/natgw-clientm-lab-d5-appgw|/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/publicIPAddresses/pip-clientm-lab-d5-natgw]
+azurerm_linux_virtual_machine.webserver: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...t.Compute/virtualMachines/vm-webserver, 00m30s elapsed]
+azurerm_linux_virtual_machine.test: Still creating... [00m20s elapsed]
+azurerm_linux_virtual_machine.webserver: Destruction complete after 34s
+azurerm_linux_virtual_machine.nva: Destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Compute/virtualMachines/vm-nva]
+azurerm_linux_virtual_machine.test: Still creating... [00m30s elapsed]
+azurerm_linux_virtual_machine.nva: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...crosoft.Compute/virtualMachines/vm-nva, 00m10s elapsed]
+azurerm_linux_virtual_machine.test: Still creating... [00m40s elapsed]
+azurerm_linux_virtual_machine.nva: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...crosoft.Compute/virtualMachines/vm-nva, 00m20s elapsed]
+azurerm_linux_virtual_machine.test: Creation complete after 49s [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Compute/virtualMachines/vm-test-client]
+azurerm_linux_virtual_machine.nva: Still destroying... [id=/subscriptions/424d0f78-5980-4d31-98ec-...crosoft.Compute/virtualMachines/vm-nva, 00m30s elapsed]
+azurerm_linux_virtual_machine.nva: Destruction complete after 32s
+azurerm_linux_virtual_machine.nva: Creating...
+azurerm_linux_virtual_machine.nva: Still creating... [00m10s elapsed]
+azurerm_linux_virtual_machine.nva: Still creating... [00m20s elapsed]
+azurerm_linux_virtual_machine.nva: Still creating... [00m30s elapsed]
+azurerm_linux_virtual_machine.nva: Still creating... [00m40s elapsed]
+azurerm_linux_virtual_machine.nva: Creation complete after 50s [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Compute/virtualMachines/vm-nva]
+azurerm_linux_virtual_machine.webserver: Creating...
+azurerm_linux_virtual_machine.webserver: Still creating... [00m10s elapsed]
+azurerm_linux_virtual_machine.webserver: Still creating... [00m20s elapsed]
+azurerm_linux_virtual_machine.webserver: Still creating... [00m30s elapsed]
+azurerm_linux_virtual_machine.webserver: Still creating... [00m40s elapsed]
+azurerm_linux_virtual_machine.webserver: Creation complete after 48s [id=/subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Compute/virtualMachines/vm-webserver]
+
+Error: deleting Public I P Address (Subscription: "424d0f78-5980-4d31-98ec-624616db8e74"
+Resource Group Name: "rg-clientm-lab-d5"
+Public I P Addresses Name: "pip-clientm-lab-d5-appgw"): performing Delete: unexpected status 400 (400 Bad Request) with error: PublicIPAddressCannotBeDeleted: Public IP address /subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/publicIPAddresses/pip-clientm-lab-d5-appgw can not be deleted since it is still allocated to resource /subscriptions/424d0f78-5980-4d31-98ec-624616db8e74/resourceGroups/rg-clientm-lab-d5/providers/Microsoft.Network/applicationGateways/appgw-clientm-lab-d5/frontendIPConfigurations/frontend-public. In order to delete the public IP, disassociate/detach the Public IP address from the resource.  To learn how to do this, see aka.ms/deletepublicip.
+
