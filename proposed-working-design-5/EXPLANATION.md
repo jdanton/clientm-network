@@ -52,6 +52,49 @@ Egress   : webserver → DMZ UDR 0.0.0.0/0 → Azure Firewall (FQDN allow-list, 
   audit trails. That's a real benefit if the security team wants different
   owners for ingress and egress controls.
 
+## App Gateway frontend testing — and the probe-routing lesson
+
+This came up troubleshooting a client App Gateway whose **health probes never
+appeared in their firewall logs**. We reproduced the App Gateway side in
+design-5 to nail down where the probe actually goes.
+
+**What we tested (2026-06-23):** a **private IP on the App Gateway frontend**.
+Note: a *private-only* App Gateway is **not supported on the WAF_v2 SKU** unless
+the subscription has the `EnableApplicationGatewayNetworkIsolation` feature
+registered (it isn't, here). So we ran a **dual frontend** — the existing public
+IP **plus** a private frontend `10.0.1.10` — both listening :443 and routing to
+the same NVA backend.
+
+**How we tested it** (the pattern to reuse):
+
+1. A private listener is unreachable from the Internet, so we added an **in-VNet
+   test client** (`vm-test-client` in `snet-test 10.0.6.0/24`) and curled the
+   App Gateway's private IP from there.
+2. Commands were run *on* that VM via the Azure control plane
+   (`az vm run-command invoke`), which needs no inbound SSH path — handy when
+   you're driving the test from outside the VNet.
+3. We watched the NVA with `nva-trace` (iptables packet counters + conntrack) to
+   see exactly which NIC the App Gateway's backend traffic and probes land on.
+
+**The result — and the lesson for the client:** switching the frontend to
+private **changed nothing** about where the probe goes. The probe `/healthz`
+returned 200, and `nva-trace` showed the App Gateway's backend traffic *and* its
+30-second health probes landing on the **NVA trust NIC** (`10.0.2.10`) and being
+DNAT'd to the webserver — exactly as with the public frontend.
+
+That's because **an App Gateway health probe originates from the gateway
+instances and targets the *backend pool member*, independent of which frontend
+(public or private) serves clients.** In design-5 the probe always reaches the
+firewall because the **backend pool *is* the firewall** (the NVA's trust IP).
+
+So a client seeing "no probes in the firewall" almost never has a *frontend*
+problem — their **backend pool points at something that bypasses the firewall**,
+typically the web server's **public IP**, which Azure hairpins over its backbone
+straight to the VM's private NIC. The fix is to put a private, in-path address
+(the firewall/NVA IP, or a forced route) in the backend pool. The full decision
+tree is in [`../appgw-probe-firewall-runbook.md`](../appgw-probe-firewall-runbook.md);
+the topology is in [`network-diagram.svg`](network-diagram.svg).
+
 ## Defense-in-depth alternative (not built — flag if you want it)
 
 The reading above is **parallel** — each firewall handles one direction. A
@@ -92,11 +135,20 @@ reading is what's built here; if the client wants series, that's a follow-on.
 - **design-4** is the cheapest option but trades away FQDN egress filtering;
   not a fit when the brief says "Azure Firewall in the solution."
 
-## What still needs verifying
+## Verification status
 
-Not yet deployed. The combination of the NVA's inbound path and the firewall's
-egress path each carry their respective design's confidence (design-4 verified
-the iptables NVA pattern by inspection; design-2/3 are live-verified for the
-Azure Firewall egress). The new wrinkle is the boot-order interaction between
-the NVA cloud-init and the firewall rule propagation, which design-3's apt
-retry loop already addresses on the webserver side. See [VERIFIED.md](VERIFIED.md).
+**Deployed and verified end-to-end.**
+
+- **2026-06-22 — full flow (7/7):** inbound `/healthz` 200 via App GW; `/whoami`
+  proves traffic crossed the NVA (DNAT + SNAT) with the client IP preserved;
+  egress SNAT source == Azure Firewall public IP; FQDN allow-list enforcing
+  (allowed reaches, non-allowed blocked). Two cloud-init bugs were found and
+  fixed during deploy.
+- **2026-06-23 — App Gateway private-frontend retest:** dual-frontend gateway,
+  private listener validated from an in-VNet client; confirmed the backend
+  health probe is independent of frontend type (see the probe-routing section
+  above).
+
+Full results and the bugs-found log are in [VERIFIED.md](VERIFIED.md). The lab
+is `terraform destroy`-ed between sessions (Azure Firewall bills ~$30/day idle);
+re-`apply` to bring it back.
