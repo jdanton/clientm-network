@@ -1,0 +1,12 @@
+# Copy to terraform.tfvars and fill in.
+
+# Your SSH public key (paste contents of ~/.ssh/<key>.pub)
+ssh_public_key = "ssh-ed25519 AAAA... your-key-here"
+
+# Your public IP /32 (curl ifconfig.me) — locks SSH to the NVA's untrust PIP
+allowed_ssh_cidr = "1.2.3.4/32"
+
+# Optional overrides
+# location            = "eastus"
+# resource_group_name = "rg-clientm-lab-d4"
+# vm_size             = "Standard_B2s"

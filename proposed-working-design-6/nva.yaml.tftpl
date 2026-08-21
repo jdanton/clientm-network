@@ -1,0 +1,194 @@
+#cloud-config
+# ============================================================================
+# design-5 NVA cloud-init — single Linux NVA, 3 NICs (untrust/trust/dmz).
+#
+# This NVA is the INBOUND firewall only. Egress is handled by Azure Firewall
+# (see firewall.tf). The webserver's snet-dmz UDR points at the Azure Firewall
+# private IP, not at this NVA's dmz IP, so webserver-originated outbound flows
+# never traverse this iptables stack.
+#
+#   INBOUND   client → App GW → trust NIC : DNAT :80/:443 → webserver
+#             dmz NIC POSTROUTING MASQUERADE → webserver replies to NVA dmz IP
+#             → conntrack reverses both NATs → out trust NIC → App GW
+#
+# The untrust NIC still carries the management public IP and the NVA's own
+# outbound (apt updates, etc.) still exits via untrust → Azure default
+# Internet (no UDR on snet-untrust) — those don't transit Azure Firewall.
+#
+# Lessons baked in from design-1's NVA cloud-init:
+#   * Detect NICs by subnet — Linux ethN ordering is by MAC/PCI, not config.
+#   * Per-NIC rp_filter=0 (asymmetric routing across NICs would be filtered).
+#   * Policy-based routing per source IP so each NIC's replies leave that NIC.
+#   * Force main-table default route via UNTRUST_GW so forwarded egress + NVA's
+#     own outbound exit via the only NIC with a public IP.
+#   * Don't MASQUERADE 168.63.129.16 (Azure platform IP).
+# ============================================================================
+package_upgrade: false
+packages:
+  - iptables
+  - iptables-persistent
+  - netfilter-persistent
+  - conntrack
+  - tcpdump
+  - net-tools
+
+write_files:
+  - path: /etc/sysctl.d/99-nva.conf
+    permissions: '0644'
+    content: |
+      net.ipv4.ip_forward = 1
+      net.ipv4.conf.all.rp_filter = 0
+      net.ipv4.conf.default.rp_filter = 0
+      net.netfilter.nf_conntrack_tcp_loose = 0
+      net.netfilter.nf_conntrack_max = 65536
+
+  - path: /usr/local/sbin/nva-firewall.sh
+    permissions: '0755'
+    content: |
+      #!/bin/bash
+      set -euo pipefail
+
+      WEBSERVER_IP="${webserver_ip}"
+      APPGW_CIDR="${appgw_cidr}"
+      TRUST_CIDR="${trust_cidr}"
+      DMZ_CIDR="${dmz_cidr}"
+      UNTRUST_CIDR="${untrust_cidr}"
+      VNET_SUPERNET="${vnet_supernet}"
+
+      # ----- Detect interfaces by subnet (Linux eth* order is MAC/PCI) -----
+      iface_in_subnet() {
+        local cidr="$1"
+        local prefix
+        prefix=$(echo "$cidr" | awk -F'.' '{print $1"."$2"."$3"."}')
+        for iface in $(ls /sys/class/net/ | grep -v '^lo$'); do
+          if ip -4 -o addr show "$iface" 2>/dev/null | awk '{print $4}' | grep -q "^$prefix"; then
+            echo "$iface"; return
+          fi
+        done
+      }
+      UNTRUST_IF=$(iface_in_subnet "$UNTRUST_CIDR")
+      TRUST_IF=$(iface_in_subnet "$TRUST_CIDR")
+      DMZ_IF=$(iface_in_subnet "$DMZ_CIDR")
+      [ -z "$UNTRUST_IF" ] || [ -z "$TRUST_IF" ] || [ -z "$DMZ_IF" ] && {
+        logger -t nva-firewall "ERROR: NIC detect failed (untrust=$UNTRUST_IF trust=$TRUST_IF dmz=$DMZ_IF)"
+        exit 1
+      }
+
+      ip_of()  { ip -4 -o addr show "$1" | awk '{print $4}' | cut -d/ -f1; }
+      gw_of()  { echo "$1" | awk -F. '{print $1"."$2"."$3".1"}'; }
+      UNTRUST_IP=$(ip_of "$UNTRUST_IF"); UNTRUST_GW=$(gw_of "$UNTRUST_IP")
+      TRUST_IP=$(ip_of   "$TRUST_IF");   TRUST_GW=$(gw_of   "$TRUST_IP")
+      DMZ_IP=$(ip_of     "$DMZ_IF");     DMZ_GW=$(gw_of     "$DMZ_IP")
+      logger -t nva-firewall "NICs: untrust=$UNTRUST_IF($UNTRUST_IP) trust=$TRUST_IF($TRUST_IP) dmz=$DMZ_IF($DMZ_IP)"
+
+      # Per-NIC rp_filter
+      for IF in "$UNTRUST_IF" "$TRUST_IF" "$DMZ_IF"; do
+        echo 0 > "/proc/sys/net/ipv4/conf/$IF/rp_filter"
+      done
+
+      # ----- Policy-based routing: each NIC's source IP uses its own table -----
+      # Replies sourced from each NIC leave via that NIC (so Azure return paths
+      # don't get crossed — same lesson as design-1).
+      grep -q '^100 t-untrust' /etc/iproute2/rt_tables || echo "100 t-untrust" >> /etc/iproute2/rt_tables
+      grep -q '^101 t-trust'   /etc/iproute2/rt_tables || echo "101 t-trust"   >> /etc/iproute2/rt_tables
+      grep -q '^102 t-dmz'     /etc/iproute2/rt_tables || echo "102 t-dmz"     >> /etc/iproute2/rt_tables
+      for T in 100 101 102; do ip route flush table $T 2>/dev/null || true; done
+      ip route add default via "$UNTRUST_GW" dev "$UNTRUST_IF" table 100
+      ip route add default via "$TRUST_GW"   dev "$TRUST_IF"   table 101
+      ip route add default via "$DMZ_GW"     dev "$DMZ_IF"     table 102
+      ip rule del from "$UNTRUST_IP" table 100 2>/dev/null || true
+      ip rule del from "$TRUST_IP"   table 101 2>/dev/null || true
+      ip rule del from "$DMZ_IP"     table 102 2>/dev/null || true
+      ip rule add from "$UNTRUST_IP" table 100
+      ip rule add from "$TRUST_IP"   table 101
+      ip rule add from "$DMZ_IP"     table 102
+
+      # ----- Force main-table default via the UNTRUST NIC -----
+      # DHCP installs a default route per NIC; we want forwarded traffic
+      # (and the NVA's own outbound) to exit via untrust (the only NIC with
+      # a public IP for SNAT).
+      while ip route show default | grep -q '^default'; do ip route del default; done
+      ip route add default via "$UNTRUST_GW" dev "$UNTRUST_IF"
+
+      # ----- iptables -----
+      iptables -F
+      iptables -t nat -F
+      iptables -t mangle -F
+      iptables -X
+
+      iptables -P INPUT  ACCEPT
+      iptables -P OUTPUT ACCEPT
+      iptables -P FORWARD DROP
+
+      # Stateful FORWARD
+      iptables -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+      iptables -A FORWARD -m conntrack --ctstate INVALID             -j DROP
+
+      # Inbound from App GW subnet to webserver (post-DNAT match by dst+port).
+      iptables -A FORWARD -p tcp -d "$WEBSERVER_IP" --dport 443 -m conntrack --ctstate NEW -j ACCEPT
+      iptables -A FORWARD -p tcp -d "$WEBSERVER_IP" --dport 80  -m conntrack --ctstate NEW -j ACCEPT
+
+      # No egress FORWARD rules here — design-5 sends webserver egress to
+      # Azure Firewall via the snet-dmz UDR, so it never traverses this NVA.
+      # FQDN allow-listing lives on the firewall (see firewall.tf).
+
+      # ----- NAT -----
+      # Inbound DNAT on TRUST NIC: App GW → :80/:443 → webserver
+      iptables -t nat -A PREROUTING -i "$TRUST_IF" -p tcp --dport 443 -j DNAT --to-destination "$WEBSERVER_IP:443"
+      iptables -t nat -A PREROUTING -i "$TRUST_IF" -p tcp --dport 80  -j DNAT --to-destination "$WEBSERVER_IP:80"
+
+      # Inbound symmetric return: SNAT on DMZ NIC so webserver replies to NVA
+      iptables -t nat -A POSTROUTING -o "$DMZ_IF" -d "$WEBSERVER_IP" -j MASQUERADE
+
+      # Don't MASQUERADE Azure platform IP (replies need original source)
+      iptables -t nat -A POSTROUTING -d 168.63.129.16 -j RETURN
+
+      # Egress SNAT on UNTRUST NIC: anything leaving to non-RFC1918 destinations
+      # gets rewritten to the untrust IP, then Azure SNATs to the public IP.
+      # NB: modern iptables (nf_tables backend) rejects multiple -d flags in one
+      # rule, so we exempt RFC1918 destinations with RETURN rules and then
+      # MASQUERADE everything else.
+      iptables -t nat -A POSTROUTING -o "$UNTRUST_IF" -d 10.0.0.0/8     -j RETURN
+      iptables -t nat -A POSTROUTING -o "$UNTRUST_IF" -d 172.16.0.0/12  -j RETURN
+      iptables -t nat -A POSTROUTING -o "$UNTRUST_IF" -d 192.168.0.0/16 -j RETURN
+      iptables -t nat -A POSTROUTING -o "$UNTRUST_IF" -j MASQUERADE
+
+      netfilter-persistent save
+      logger -t nva-firewall "rules applied"
+
+  - path: /etc/systemd/system/nva-firewall.service
+    permissions: '0644'
+    content: |
+      [Unit]
+      Description=NVA firewall rules
+      After=network-online.target
+      Wants=network-online.target
+
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/local/sbin/nva-firewall.sh
+      RemainAfterExit=yes
+
+      [Install]
+      WantedBy=multi-user.target
+
+runcmd:
+  - modprobe nf_conntrack
+  - echo nf_conntrack > /etc/modules-load.d/nf_conntrack.conf
+  - sysctl --system
+  - systemctl daemon-reload
+  - systemctl enable --now nva-firewall.service
+  - |
+    cat > /usr/local/bin/nva-trace <<'EOF'
+    #!/bin/bash
+    echo "=== interfaces ==="; ip -4 -br addr
+    echo; echo "=== ip rule ==="; ip rule
+    echo; echo "=== main default ==="; ip route show default
+    echo; echo "=== iptables FORWARD ==="; iptables -L FORWARD -v -n --line-numbers
+    echo; echo "=== iptables NAT PREROUTING ==="; iptables -t nat -L PREROUTING -v -n --line-numbers
+    echo; echo "=== iptables NAT POSTROUTING ==="; iptables -t nat -L POSTROUTING -v -n --line-numbers
+    echo; echo "=== conntrack (last 20) ==="; conntrack -L 2>/dev/null | tail -20
+    EOF
+  - chmod +x /usr/local/bin/nva-trace
+
+final_message: "NVA bootstrap complete. Run 'sudo nva-trace' to inspect state."
