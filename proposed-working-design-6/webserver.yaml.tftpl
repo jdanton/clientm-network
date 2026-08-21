@@ -1,0 +1,99 @@
+#cloud-config
+# ============================================================================
+# Webserver: nginx serving /healthz and /whoami.
+#
+# /whoami exposes X-Forwarded-For so you can verify the client IP propagates
+# through App Gateway → NVA → here. App GW v2 adds X-Forwarded-For with the
+# original client IP; the NVA SNATs inbound on its DMZ NIC (for symmetric
+# returns — see nva.yaml.tftpl), which means nginx sees remote_addr = the
+# NVA's DMZ IP and X-Forwarded-For = the original client.
+#
+# Packages are installed in runcmd with a RETRY LOOP rather than the cloud-init
+# `packages:` directive — defensive: if the NVA's firewall service is still
+# starting when the webserver runs apt, retry rather than fail cloud-init
+# permanently. Same hardening pattern design-3 added after the first-boot race.
+# ============================================================================
+package_upgrade: false
+
+write_files:
+  - path: /etc/nginx/sites-available/default
+    permissions: '0644'
+    content: |
+      log_format with_xff '$remote_addr - $remote_user [$time_local] '
+                          '"$request" $status $body_bytes_sent '
+                          '"$http_referer" "$http_user_agent" '
+                          'xff="$http_x_forwarded_for" '
+                          'xfp="$http_x_forwarded_proto"';
+
+      server {
+        listen 80 default_server;
+        listen 443 ssl default_server;
+
+        server_name connect.clientmworkspace.com _;
+
+        ssl_certificate     /etc/ssl/certs/webserver-selfsigned.crt;
+        ssl_certificate_key /etc/ssl/private/webserver-selfsigned.key;
+
+        access_log /var/log/nginx/access.log with_xff;
+
+        root /var/www/html;
+        index index.html;
+
+        location /healthz {
+          access_log off;
+          add_header Content-Type text/plain;
+          return 200 'OK\n';
+        }
+
+        location /whoami {
+          access_log off;
+          default_type text/plain;
+          return 200 "host: $host\nremote_addr: $remote_addr\nx-forwarded-for: $http_x_forwarded_for\nx-forwarded-proto: $http_x_forwarded_proto\nx-forwarded-port: $http_x_forwarded_port\nx-original-host: $http_x_original_host\n";
+        }
+
+        location / {
+          try_files $uri $uri/ =404;
+        }
+      }
+
+  - path: /var/www/html/index.html
+    permissions: '0644'
+    content: |
+      <!DOCTYPE html>
+      <html>
+      <head><title>Clientm Lab Webserver</title></head>
+      <body style="font-family: monospace; padding: 2em;">
+        <h1>Clientm Lab Webserver</h1>
+        <p>Path: Internet → App Gateway → Internal LB → NVA → here.</p>
+        <p>Try <a href="/healthz">/healthz</a> or <a href="/whoami">/whoami</a>.</p>
+      </body>
+      </html>
+
+runcmd:
+  - |
+    # Install packages, retrying until egress through Azure Firewall is allowed
+    # (rules may still be propagating at first boot). Up to ~10 min.
+    for i in $(seq 1 30); do
+      apt-get update \
+        && DEBIAN_FRONTEND=noninteractive apt-get install -y nginx openssl tcpdump net-tools \
+        && break
+      logger -t webserver-bootstrap "apt attempt $i failed (egress firewall rules may still be propagating); retrying in 20s"
+      sleep 20
+    done
+  - |
+    # When cloud-init's write_files placed sites-available/default BEFORE
+    # nginx-common was installed, dpkg skips creating the usual sites-enabled
+    # symlink — nginx then runs but is bound to no sites and serves nothing.
+    # Recreate the symlink explicitly (idempotent).
+    ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+  - |
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+      -keyout /etc/ssl/private/webserver-selfsigned.key \
+      -out /etc/ssl/certs/webserver-selfsigned.crt \
+      -subj "/CN=connect.clientmworkspace.com" \
+      -addext "subjectAltName=DNS:connect.clientmworkspace.com"
+  - chmod 600 /etc/ssl/private/webserver-selfsigned.key
+  - systemctl enable nginx
+  - systemctl restart nginx
+
+final_message: "Webserver bootstrap complete. nginx serving /healthz and /whoami on 80 + 443."
